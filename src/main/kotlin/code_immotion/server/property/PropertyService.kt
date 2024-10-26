@@ -3,4 +3,7 @@ package code_immotion.server.property
 import org.springframework.stereotype.Service
 
 @Service
-class PropertyService
+class PropertyService(
+    private val propertyRepository: PropertyRepository,
+) {
+}
