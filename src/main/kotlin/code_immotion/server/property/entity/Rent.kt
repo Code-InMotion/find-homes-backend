@@ -1,4 +1,4 @@
-package code_immotion.server.property.domain
+package code_immotion.server.property.entity
 
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate

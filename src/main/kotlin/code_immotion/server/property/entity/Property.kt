@@ -1,11 +1,11 @@
-package code_immotion.server.property.domain
+package code_immotion.server.property.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document(collection = "property")
-sealed class Property(
+abstract class Property(
     @Id
     var id: String? = null,
     val state: String,
