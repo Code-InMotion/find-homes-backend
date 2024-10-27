@@ -1,22 +1,10 @@
 spring:
+  profiles:
+    active: secret
   data.mongodb.url: mongodb://localhost:27017/homes
-#  datasource:
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/homes?serverTimezone=Asia/Seoul&rewriteBatchedStatements=true
-#    username: root
-#    password: 1111
-#  jpa:
-#    hibernate:
-#      ddl-auto: create
-#    properties:
-#      hibernate:
-#        generate_statistics: true
-#        jdbc:
-#          batch_size: 100
-#        show_sql: true
   output:
     ansi:
       enabled: always
-#  jackson:
-#    serialization:
-#      indent-output: true
+jackson:
+  serialization:
+    indent-output: true

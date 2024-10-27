@@ -10,6 +10,6 @@ enum class ApiLink(
     OFFICETEL("https://apis.data.go.kr/1613000/RTMSDataSvcOffi", "Offi"); // 오피스텔
 
     fun getUrl(transactionType: TransactionType): String {
-        return "$baseUrl${transactionType.value}/getTRMSDataSvc$abbreviation${transactionType.value}"
+        return "$baseUrl${transactionType.value}/getRTMSDataSvc$abbreviation${transactionType.value}"
     }
 }
