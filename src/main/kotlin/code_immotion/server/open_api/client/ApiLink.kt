@@ -1,4 +1,4 @@
-package code_immotion.server.open_api
+package code_immotion.server.open_api.client
 
 enum class ApiLink(
     private val baseUrl: String,
