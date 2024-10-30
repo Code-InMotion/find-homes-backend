@@ -39,7 +39,6 @@ class OpenApiClient {
 
         val xml = RestClient.create().get()
             .uri(uri)
-            .header("Accept", "application/xml")
             .retrieve()
             .body(String::class.java)
 
