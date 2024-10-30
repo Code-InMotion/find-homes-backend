@@ -12,14 +12,9 @@ private val logger = KotlinLogging.logger {}
 class OpenApiController(
     private val openApiFacade: OpenApiFacade
 ) {
-    @GetMapping
-    fun test() {
-        openApiFacade.syncPropertiesWithOpenApi()
-    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun syncPropertiesWithOpenApi() = openApiFacade.syncPropertiesWithOpenApi()
+    fun syncPropertiesWithOpenApi(@RequestParam("dealMonth") dealMonth: Int) = openApiFacade.syncPropertiesWithOpenApi(dealMonth)
 
     @ExceptionHandler(ResponseStatusException::class)
     fun handleResponseStatusException(exception: ResponseStatusException): ResponseStatusException {

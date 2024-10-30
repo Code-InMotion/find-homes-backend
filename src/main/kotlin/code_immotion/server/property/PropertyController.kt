@@ -11,6 +11,9 @@ class PropertyController(private val propertyService: PropertyService) {
     @GetMapping
     fun readAll() = propertyService.readAll()
 
+    @GetMapping("size")
+    fun readPropertiesSize() = propertyService.readAll().size
+
     @DeleteMapping
     fun deleteAll() = propertyService.deleteAll()
 }
