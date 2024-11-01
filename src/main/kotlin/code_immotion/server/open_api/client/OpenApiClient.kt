@@ -37,7 +37,8 @@ class OpenApiClient {
             .build(true)
             .toUri()
 
-        val xml = RestClient.create().get()
+        val xml = RestClient.create()
+            .get()
             .uri(uri)
             .retrieve()
             .body(String::class.java)
@@ -45,13 +46,16 @@ class OpenApiClient {
         val json = XML.toJSONObject(xml)
         val rootNode = ObjectMapper().readTree(json.toString())
 
-        rootNode.path("OpenAPI_ServiceResponse").takeIf { !it.isMissingNode }?.let { errorNode ->
-            logger.error { xml }
-            val authMsg = errorNode.path("cmmMsgHeader").path("returnAuthMsg").asText()
-            throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "AuthMsg: $authMsg")
-        }
+        rootNode.path("OpenAPI_ServiceResponse")
+            .takeIf { !it.isMissingNode }
+            ?.let { errorNode ->
+                logger.error { xml }
+                val authMsg = errorNode.path("cmmMsgHeader").path("returnAuthMsg").asText()
+                throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "AuthMsg: $authMsg")
+            }
 
         val itemsNode = rootNode.path("response").path("body").path("items").path("item")
+
         return when {
             itemsNode.isMissingNode || (itemsNode.isArray && itemsNode.size() == 0) -> emptyList()
             itemsNode.isArray -> itemsNode.toList()
@@ -59,7 +63,11 @@ class OpenApiClient {
         }
     }
 
-    fun parseFromXml(items: Iterable<JsonNode>, state: String, city: String): List<Property> {
+    fun parseFromXml(
+        items: Iterable<JsonNode>,
+        state: String,
+        city: String
+    ): List<Property> {
         return items.map { item ->
             val houseType = when (item.path("houseType").asText()) {
                 "단독" -> BuildingType.SINGLE_FAMILY
