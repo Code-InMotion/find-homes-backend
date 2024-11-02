@@ -1,4 +1,4 @@
-package code_immotion.server.open_api
+package code_immotion.server.open_api.client
 
 enum class ApiLink(
     private val baseUrl: String,
@@ -10,6 +10,7 @@ enum class ApiLink(
     OFFICETEL("https://apis.data.go.kr/1613000/RTMSDataSvcOffi", "Offi"); // 오피스텔
 
     fun getUrl(transactionType: TransactionType): String {
-        return "$baseUrl${transactionType.value}/getRTMSDataSvc$abbreviation${transactionType.value}"
+        return if (this == APARTMENT && transactionType == TransactionType.SALE) "$baseUrl${transactionType.value}Dev/getRTMSDataSvc$abbreviation${transactionType.value}Dev"
+        else "$baseUrl${transactionType.value}/getRTMSDataSvc$abbreviation${transactionType.value}"
     }
 }

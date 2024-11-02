@@ -10,6 +10,8 @@ abstract class Property(
     var id: String? = null,
     val state: String,
     val city: String,
+    val district: String,
+    val jibun: String,
     val buildingType: BuildingType,
     val buildYear: Int,
     val exclusiveArea: Int,
