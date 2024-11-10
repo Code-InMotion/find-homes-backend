@@ -2,7 +2,7 @@ package code_immotion.server.open_api.client
 
 import code_immotion.server.property.entity.BuildingType
 import code_immotion.server.property.entity.Property
-import code_immotion.server.property.entity.Rent
+import code_immotion.server.property.entity.DepositRent
 import code_immotion.server.property.entity.Sale
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -77,7 +77,7 @@ class OpenApiClient {
                 else -> BuildingType.APARTMENT
             }
             val amount = item.path("dealAmount")
-            if (amount.isMissingNode) Rent.from(item, state, city, houseType)
+            if (amount.isMissingNode) DepositRent.from(item, state, city, houseType)
             else Sale.from(item, state, city, houseType)
         }
     }

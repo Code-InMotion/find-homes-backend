@@ -12,6 +12,7 @@ abstract class Property(
     val city: String,
     val district: String,
     val jibun: String,
+    val price: Long,
     val buildingType: BuildingType,
     val buildYear: Int,
     val exclusiveArea: Int,

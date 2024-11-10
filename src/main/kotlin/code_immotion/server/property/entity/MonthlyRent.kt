@@ -5,11 +5,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document(collection = "property")
-class Rent(
-    val deposit: Int,
-    val monthlyAmount: Int,
+class MonthlyRent(
+    val rentPrice: Int,
     val startDate: LocalDate,
     val endDate: LocalDate,
+    price: Long,
     state: String,
     city: String,
     district: String,
@@ -20,6 +20,7 @@ class Rent(
     floor: Int,
     dealDate: LocalDate,
 ) : Property(
+    price = price,
     state = state,
     city = city,
     district = district,
@@ -31,7 +32,7 @@ class Rent(
     dealDate = dealDate,
 ) {
     companion object {
-        fun from(jsonNode: JsonNode, state: String, city: String, buildingType: BuildingType) = Rent(
+        fun from(jsonNode: JsonNode, state: String, city: String, buildingType: BuildingType) = MonthlyRent(
             state = state,
             city = city,
             district = jsonNode.path("umdNm").asText(),
@@ -40,8 +41,9 @@ class Rent(
             buildYear = jsonNode.path("buildYear").asInt(),
             exclusiveArea = jsonNode.path("excluUseAr").asDouble().toInt(),
             floor = jsonNode.path("floor").asInt(),
-            monthlyAmount = (jsonNode.path("monthlyAmount").asText().takeIf { it.isNotBlank() }?.replace(",", "")?.toInt() ?: 0),
-            deposit = jsonNode.path("deposit").asText().replace(",", "").toInt(),
+            rentPrice = (jsonNode.path("monthlyAmount").asText().takeIf { it.isNotBlank() }?.replace(",", "")
+                ?.toInt() ?: 0),
+            price = jsonNode.path("deposit").asText().replace(",", "").toLong(),
             startDate = LocalDate.now(),
             endDate = LocalDate.now(),
             dealDate = LocalDate.of(
