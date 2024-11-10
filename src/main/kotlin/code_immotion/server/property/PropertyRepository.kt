@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository
 
 
 interface PropertyRepository : MongoRepository<Property, String>{
-    fun readPropertiesWithOptions()
+//    fun readPropertiesWithOptions()
 }

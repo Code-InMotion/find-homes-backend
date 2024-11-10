@@ -1,12 +1,14 @@
 package code_immotion.server.open_api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
 private val logger = KotlinLogging.logger {}
 
+@Tag(name = "공공데이터 API")
 @RestController
 @RequestMapping("open-api")
 class OpenApiController(
