@@ -1,6 +1,6 @@
 package code_immotion.server.property.entity
 
-enum class BuildingType {
+enum class HouseType {
     APARTMENT, // 아파트
     OFFICETEL, // 오피스텔
     SINGLE_FAMILY, // 단독

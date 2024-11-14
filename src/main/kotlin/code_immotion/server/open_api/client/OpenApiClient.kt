@@ -1,9 +1,6 @@
 package code_immotion.server.open_api.client
 
-import code_immotion.server.property.entity.BuildingType
-import code_immotion.server.property.entity.Property
-import code_immotion.server.property.entity.DepositRent
-import code_immotion.server.property.entity.Sale
+import code_immotion.server.property.entity.*
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -11,6 +8,7 @@ import org.json.XML
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
+import org.springframework.util.StopWatch
 import org.springframework.web.client.RestClient
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
@@ -70,15 +68,17 @@ class OpenApiClient {
     ): List<Property> {
         return items.map { item ->
             val houseType = when (item.path("houseType").asText()) {
-                "단독" -> BuildingType.SINGLE_FAMILY
-                "다가구" -> BuildingType.MULTI_FAMILY
-                "연립" -> BuildingType.TOWNHOUSE
-                "다세대" -> BuildingType.MULTI_UNIT
-                else -> BuildingType.APARTMENT
+                "단독" -> HouseType.SINGLE_FAMILY
+                "다가구" -> HouseType.MULTI_FAMILY
+                "연립" -> HouseType.TOWNHOUSE
+                "다세대" -> HouseType.MULTI_UNIT
+                else -> HouseType.APARTMENT
             }
             val amount = item.path("dealAmount")
-            if (amount.isMissingNode) DepositRent.from(item, state, city, houseType)
-            else Sale.from(item, state, city, houseType)
+            val monthlyAmount = item.path("monthlyAmount")
+            if (!amount.isMissingNode) Sale.from(item, state, city, houseType)
+            else if (monthlyAmount.isMissingNode) DepositRent.from(item, state, city, houseType)
+            else MonthlyRent.from(item, state, city, houseType)
         }
     }
 }

@@ -14,7 +14,7 @@ class MonthlyRent(
     city: String,
     district: String,
     jibun: String,
-    buildingType: BuildingType,
+    houseType: HouseType,
     buildYear: Int,
     exclusiveArea: Int,
     floor: Int,
@@ -25,19 +25,19 @@ class MonthlyRent(
     city = city,
     district = district,
     jibun = jibun,
-    buildingType = buildingType,
+    houseType = houseType,
     buildYear = buildYear,
     exclusiveArea = exclusiveArea,
     floor = floor,
     dealDate = dealDate,
 ) {
     companion object {
-        fun from(jsonNode: JsonNode, state: String, city: String, buildingType: BuildingType) = MonthlyRent(
+        fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = MonthlyRent(
             state = state,
             city = city,
             district = jsonNode.path("umdNm").asText(),
             jibun = jsonNode.path("jibun").asText(),
-            buildingType = buildingType,
+            houseType = houseType,
             buildYear = jsonNode.path("buildYear").asInt(),
             exclusiveArea = jsonNode.path("excluUseAr").asDouble().toInt(),
             floor = jsonNode.path("floor").asInt(),
