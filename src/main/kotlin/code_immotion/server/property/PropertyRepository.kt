@@ -4,4 +4,6 @@ import code_immotion.server.property.entity.Property
 import org.springframework.data.mongodb.repository.MongoRepository
 
 
-interface PropertyRepository : MongoRepository<Property, String>
+interface PropertyRepository : MongoRepository<Property, String>{
+//    fun readPropertiesWithOptions()
+}

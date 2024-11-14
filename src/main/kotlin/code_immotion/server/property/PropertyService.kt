@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service
 class PropertyService(private val propertyRepository: PropertyRepository) {
     fun readAll(): List<Property> = propertyRepository.findAll()
 
+//    fun readPropertiesWithOptions() = propertyRepository.
+
     fun saveAll(properties: List<Property>) = propertyRepository.saveAll(properties)
 
     fun deleteAll() = propertyRepository.deleteAll()

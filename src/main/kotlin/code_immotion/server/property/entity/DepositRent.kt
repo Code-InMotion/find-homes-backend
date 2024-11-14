@@ -5,7 +5,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document(collection = "property")
-class Sale(
+class DepositRent(
+    val startDate: LocalDate,
+    val endDate: LocalDate,
     price: Long,
     state: String,
     city: String,
@@ -29,7 +31,7 @@ class Sale(
     dealDate = dealDate,
 ) {
     companion object {
-        fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = Sale(
+        fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = DepositRent(
             state = state,
             city = city,
             district = jsonNode.path("umdNm").asText(),
@@ -38,7 +40,9 @@ class Sale(
             buildYear = jsonNode.path("buildYear").asInt(),
             exclusiveArea = jsonNode.path("excluUseAr").asDouble().toInt(),
             floor = jsonNode.path("floor").asInt(),
-            price = jsonNode.path("dealAmount").asText().replace(",", "").toLong(),
+            price = jsonNode.path("deposit").asText().replace(",", "").toLong(),
+            startDate = LocalDate.now(),
+            endDate = LocalDate.now(),
             dealDate = LocalDate.of(
                 jsonNode.path("dealYear").asInt(),
                 jsonNode.path("dealMonth").asInt(),
