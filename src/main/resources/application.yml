@@ -1,7 +1,9 @@
 spring:
   profiles:
     active: secret
-  data.mongodb.url: mongodb://localhost:27017/homes
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/homes
   output:
     ansi:
       enabled: always
