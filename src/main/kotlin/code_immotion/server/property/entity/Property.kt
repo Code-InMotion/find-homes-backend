@@ -8,10 +8,11 @@ import java.time.LocalDate
 abstract class Property(
     @Id
     var id: String? = null,
-    val state: String,
-    val city: String,
-    val district: String,
-    val jibun: String,
+    val address: String,
+//    val state: String,
+//    val city: String,
+//    val district: String,
+//    val jibun: String,
     val price: Long,
     val houseType: HouseType,
     val buildYear: Int,

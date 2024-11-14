@@ -9,10 +9,7 @@ class DepositRent(
     val startDate: LocalDate,
     val endDate: LocalDate,
     price: Long,
-    state: String,
-    city: String,
-    district: String,
-    jibun: String,
+    address: String,
     houseType: HouseType,
     buildYear: Int,
     exclusiveArea: Int,
@@ -20,10 +17,7 @@ class DepositRent(
     dealDate: LocalDate,
 ) : Property(
     price = price,
-    state = state,
-    city = city,
-    district = district,
-    jibun = jibun,
+    address = address,
     houseType = houseType,
     buildYear = buildYear,
     exclusiveArea = exclusiveArea,
@@ -32,10 +26,7 @@ class DepositRent(
 ) {
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = DepositRent(
-            state = state,
-            city = city,
-            district = jsonNode.path("umdNm").asText(),
-            jibun = jsonNode.path("jibun").asText(),
+            address = "$state $city ${jsonNode.path("umdNm").asText()} ${jsonNode.path("jibun").asText()}",
             houseType = houseType,
             buildYear = jsonNode.path("buildYear").asInt(),
             exclusiveArea = jsonNode.path("excluUseAr").asDouble().toInt(),
