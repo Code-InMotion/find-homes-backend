@@ -2,7 +2,6 @@ package code_immotion.server.property
 
 import code_immotion.server.property.entity.Property
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Repository

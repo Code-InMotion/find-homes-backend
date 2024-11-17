@@ -1,31 +1,17 @@
 package code_immotion.server.property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
-@Document(collection = "property")
 class DepositRent(
-    val id: String? = null,
-    val deposit: Long,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    address: String,
-    houseType: HouseType,
-    buildYear: Int,
-    exclusiveArea: Int,
-    floor: Int,
-    dealDate: LocalDate,
-) : Property(address, houseType, buildYear, exclusiveArea, floor, dealDate) {
+    override val type: TradeType = TradeType.LONG_TERM_RENT,
+    override val price: Long,
+    override val floor: Int,
+    override val dealDate: LocalDate,
+) : Trade() {
     companion object {
-        fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = DepositRent(
-            deposit = jsonNode.path("deposit").asText().replace(",", "").toLong(),
-            startDate = LocalDate.now(),
-            endDate = LocalDate.now(),
-            address = "$state $city ${jsonNode.path("umdNm").asText()} ${jsonNode.path("jibun").asText()}",
-            houseType = houseType,
-            buildYear = jsonNode.path("buildYear").asInt(),
-            exclusiveArea = jsonNode.path("excluUseAr").asDouble().toInt(),
+        fun from(jsonNode: JsonNode) = DepositRent(
+            price = jsonNode.path("deposit").asText().replace(",", "").toLong(),
             floor = jsonNode.path("floor").asInt(),
             dealDate = LocalDate.of(
                 jsonNode.path("dealYear").asInt(),
