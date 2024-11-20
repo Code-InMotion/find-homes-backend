@@ -1,6 +1,7 @@
 package code_immotion.server.open_api.client
 
-import code_immotion.server.property.entity.*
+import code_immotion.server.property.entity.HouseType
+import code_immotion.server.property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -8,7 +9,6 @@ import org.json.XML
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.util.StopWatch
 import org.springframework.web.client.RestClient
 import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
@@ -74,11 +74,7 @@ class OpenApiClient {
                 "다세대" -> HouseType.MULTI_UNIT
                 else -> HouseType.APARTMENT
             }
-            val amount = item.path("dealAmount")
-            val monthlyAmount = item.path("monthlyAmount")
-            if (!amount.isMissingNode) Sale.from(item, state, city, houseType)
-            else if (monthlyAmount.isMissingNode) DepositRent.from(item, state, city, houseType)
-            else MonthlyRent.from(item, state, city, houseType)
+            Property.from(item, state, city, houseType)
         }
     }
 }
