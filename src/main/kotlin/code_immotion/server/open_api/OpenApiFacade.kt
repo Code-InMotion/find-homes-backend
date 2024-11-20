@@ -5,9 +5,11 @@ import code_immotion.server.open_api.client.OpenApiCityCode
 import code_immotion.server.open_api.client.OpenApiClient
 import code_immotion.server.open_api.client.TransactionType
 import code_immotion.server.property.PropertyService
-import code_immotion.server.property.entity.Property
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
 
@@ -24,7 +26,7 @@ class OpenApiFacade(
 
         val properties = ApiLink.entries.flatMap { link ->
             OpenApiCityCode.entries.map { cityCode ->
-                async(Dispatchers.IO + SupervisorJob()) {
+                async(Dispatchers.IO) {
                     try {
                         // 각 도시의 매매/임대 데이터를 병렬로 가져옴
                         val saleResponses = openApiClient.sendRequest(link, TransactionType.SALE, cityCode.code, dealMonth)
