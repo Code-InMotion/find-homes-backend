@@ -1,6 +1,7 @@
 package code_immotion.server.open_api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -16,6 +17,7 @@ class OpenApiController(
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Hidden
     suspend fun syncPropertiesWithOpenApi(@RequestParam("dealMonth") dealMonth: Int) = openApiFacade.syncPropertiesWithOpenApi(dealMonth)
 
     @ExceptionHandler(ResponseStatusException::class)
