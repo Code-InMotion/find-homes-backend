@@ -16,7 +16,7 @@ class OpenApiController(
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun syncPropertiesWithOpenApi(@RequestParam("dealMonth") dealMonth: Int) = openApiFacade.syncPropertiesWithOpenApi(dealMonth)
+    suspend fun syncPropertiesWithOpenApi(@RequestParam("dealMonth") dealMonth: Int) = openApiFacade.syncPropertiesWithOpenApi(dealMonth)
 
     @ExceptionHandler(ResponseStatusException::class)
     fun handleResponseStatusException(exception: ResponseStatusException): ResponseStatusException {
