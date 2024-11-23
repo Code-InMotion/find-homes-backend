@@ -68,8 +68,8 @@ class OpenApiClient {
     ): List<Property> {
         return items.map { item ->
             val houseType = when (item.path("houseType").asText()) {
-                "단독" -> HouseType.SINGLE_FAMILY
-                "다가구" -> HouseType.MULTI_FAMILY
+//                "단독" -> HouseType.SINGLE_FAMILY
+//                "다가구" -> HouseType.MULTI_FAMILY
                 "연립" -> HouseType.TOWNHOUSE
                 "다세대" -> HouseType.MULTI_UNIT
                 else -> HouseType.APARTMENT

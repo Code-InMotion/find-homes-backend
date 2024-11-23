@@ -10,17 +10,16 @@ private val logger = KotlinLogging.logger { }
 
 @Service
 class PropertyService(private val propertyRepository: PropertyRepository) {
-    fun pagingProperties(pagingParam: PropertyPagingParam): PageImpl<Property> = propertyRepository.pagingProperties(pagingParam)
+    fun pagingProperties(pagingParam: PropertyPagingParam): PageImpl<Property> =
+        propertyRepository.pagingProperties(pagingParam)
 
-    fun saveAll(properties: List<Property>) = propertyRepository.bulkInsert(properties)
+    fun saveAll(properties: List<Property>) = propertyRepository.saveAll(properties)
 
-    fun readSize(): Int {
-        val size = propertyRepository.findAll().size
-        logger.info { "size: $size" }
-        return size
-    }
+    fun upsertAll(properties: List<Property>) = propertyRepository.upsertAll(properties)
 
-    fun readOne(address: String) = propertyRepository.findByAddress(address)
+    fun findTotalSize(): Long = propertyRepository.findTotalSize()
+
+    fun findAllByAddresses(addresses: List<String>) = propertyRepository.findAllByAddresses(addresses)
 
 
     fun deleteAll() = propertyRepository.deleteAll()

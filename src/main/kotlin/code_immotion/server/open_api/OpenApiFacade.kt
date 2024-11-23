@@ -24,11 +24,10 @@ class OpenApiFacade(
         val watch = StopWatch()
         watch.start()
 
-        val properties = ApiLink.entries.flatMap { link ->
+        val newProperties = ApiLink.entries.flatMap { link ->
             OpenApiCityCode.entries.map { cityCode ->
                 async(Dispatchers.IO) {
                     try {
-                        // 각 도시의 매매/임대 데이터를 병렬로 가져옴
                         val saleResponses = openApiClient.sendRequest(link, TransactionType.SALE, cityCode.code, dealMonth)
                         val rentResponses = openApiClient.sendRequest(link, TransactionType.RENT, cityCode.code, dealMonth)
 
@@ -44,10 +43,19 @@ class OpenApiFacade(
             }
         }.awaitAll().flatten()
 
-        propertyService.saveAll(properties)
+        val latestProperties = newProperties.groupBy {
+            it.address to it.trade.type
+        }.filter { (_, properties) ->
+            properties.size > 1
+        }.mapValues { (_, property) ->
+            property.maxBy { it.trade.dealDate }
+        }.values.toList()
+
         watch.stop()
         logger.info { watch.prettyPrint() }
-        logger.info { "size: ${properties.size}" }
         logger.info { "dealMonth: $dealMonth" }
+        logger.info { "properties size: ${newProperties.size}" }
+        logger.info { "new properties size: ${latestProperties.size}" }
+        propertyService.upsertAll(latestProperties)
     }
 }

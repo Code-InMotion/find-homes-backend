@@ -3,7 +3,7 @@ spring:
     active: secret
   data:
     mongodb:
-      uri: mongodb://localhost:27017/homes
+      uri: ${MONGODB_URI}
   output:
     ansi:
       enabled: always

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
 import org.springdoc.core.converters.models.PageableAsQueryParam
 import org.springframework.web.bind.annotation.*
-import java.lang.IllegalArgumentException
 
 private val logger = KotlinLogging.logger { }
 
@@ -23,14 +22,10 @@ class PropertyController(private val propertyService: PropertyService) {
 
     @GetMapping("size")
     @Operation(summary = "전체 매물 수 확인")
-    fun readSize() = propertyService.readSize()
-
-    @GetMapping("{address}")
-    @Hidden
-    fun readOne(@PathVariable("address") address: String) = propertyService.readOne(address)
+    fun findTotalSize() = propertyService.findTotalSize()
 
     @DeleteMapping
-    @Hidden
+//    @Hidden
     fun deleteAll() = propertyService.deleteAll()
 
     @ExceptionHandler(IllegalArgumentException::class)

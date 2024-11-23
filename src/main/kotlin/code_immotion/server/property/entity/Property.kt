@@ -2,6 +2,7 @@ package code_immotion.server.property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "property")
 open class Property(
@@ -10,6 +11,8 @@ open class Property(
     val houseType: HouseType,
     val buildYear: Int,
     val exclusiveArea: Int,
+
+    @Field("trade")
     val trade: Trade,
     val latitude: Double? = null, // 위도
     val longitude: Double? = null, // 경도
@@ -20,9 +23,9 @@ open class Property(
             val monthlyPrice = jsonNode.path("monthlyRent")
 
             val trade = when {
-                !amount.isMissingNode -> Sale.from(jsonNode)
-                monthlyPrice.asLong() != 0L -> MonthlyRent.from(jsonNode)
-                else -> DepositRent.from(jsonNode)
+                !amount.isMissingNode -> Trade.Sale.from(jsonNode)
+                monthlyPrice.asLong() != 0L -> Trade.MonthlyRent.from(jsonNode)
+                else -> Trade.DepositRent.from(jsonNode)
             }
             return Property(
                 address = "$state $city ${jsonNode.path("umdNm").asText()} ${jsonNode.path("jibun").asText()}",
