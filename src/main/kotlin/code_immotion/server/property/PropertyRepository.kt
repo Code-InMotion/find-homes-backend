@@ -5,8 +5,11 @@ import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.geo.Metrics
+import org.springframework.data.geo.Point
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.NearQuery
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Repository
@@ -48,7 +51,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
     fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
 
-    fun pagingProperties(pagingParam: PropertyPagingParam): PageImpl<Property> {
+    fun pagingProperties(pagingParam: PropertyPagingParam, latitude: Double, longitude: Double): PageImpl<Property> {
         val pageable = pagingParam.toPageable()
         val criteria = Criteria()
 
@@ -67,8 +70,13 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
                 }
             }
         }
+        val point = Point(longitude, latitude)
 
-        val query = Query(criteria).with(pageable)
+        val query = NearQuery.near(point)
+            .maxDistance(pagingParam.travelTime * 0.6, Metrics.KILOMETERS)
+            .spherical(true)
+            .query(Query(criteria).with(pageable))
+//        val query = Query(criteria).with(pageable)
 
         val total = mongoTemplate.count(query, Property::class.java)
         val properties = mongoTemplate.find(query, Property::class.java)
@@ -85,4 +93,10 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         val query = Query()
         mongoTemplate.remove(query, Property::class.java)
     }
+}
+
+fun calculrateDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
+    val xDiff = x2 - x1
+    val yDiff = y2 - y1
+    return kotlin.math.sqrt(xDiff * xDiff + yDiff * yDiff)
 }

@@ -18,9 +18,12 @@ private val logger = KotlinLogging.logger {}
 @Component
 class OpenApiClient {
     @Value("\${openApi.secretKey}")
-    lateinit var secretKey: String
+    lateinit var dataSecretKey: String
 
-    fun sendRequest(
+    @Value("\${kakao.secretKey}")
+    lateinit var kakaoSecretKey: String
+
+    fun sendRequestToData(
         apiLink: ApiLink,
         transactionType: TransactionType,
         cityCode: Int,
@@ -28,7 +31,7 @@ class OpenApiClient {
     ): Iterable<JsonNode> {
         val uri = UriComponentsBuilder
             .fromHttpUrl(apiLink.getUrl(transactionType))
-            .queryParam("serviceKey", secretKey)
+            .queryParam("serviceKey", dataSecretKey)
             .queryParam("LAWD_CD", cityCode)
             .queryParam("DEAL_YMD", dealMonth)
             .queryParam("numOfRows", 9999)
@@ -61,7 +64,28 @@ class OpenApiClient {
         }
     }
 
-    fun parseFromXml(
+    fun sendRequestForGeoLocation(address: String): JsonNode {
+        val uri = UriComponentsBuilder
+            .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
+            .queryParam("query", address)
+            .build()
+            .toUri()
+        try {
+            val xml = RestClient.create()
+                .get()
+                .uri(uri)
+                .header("Authorization", "KakaoAK $kakaoSecretKey")
+                .retrieve()
+                .body(String::class.java)
+
+            return ObjectMapper().readTree(xml).path("documents")
+        } catch (e: Exception) {
+            logger.error { e.printStackTrace() }
+            throw Exception("kakao request error")
+        }
+    }
+
+    fun parseFromXml4Data(
         items: Iterable<JsonNode>,
         state: String,
         city: String

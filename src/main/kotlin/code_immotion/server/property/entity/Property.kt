@@ -14,9 +14,15 @@ open class Property(
     val dealDate: LocalDate,
     val buildYear: Int,
     val exclusiveArea: Int,
-    val latitude: Double? = null, // 위도
-    val longitude: Double? = null, // 경도
+    var latitude: Double? = null, // 위도 y
+    var longitude: Double? = null, // 경도 x
 ) {
+    fun updateCoordinate(rootNode: JsonNode) {
+        if (rootNode.isEmpty) return
+        this.latitude = rootNode.path("y").asText().toDouble()
+        this.longitude = rootNode.path("x").asText().toDouble()
+    }
+
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType): Property {
             val amount = jsonNode.path("dealAmount")

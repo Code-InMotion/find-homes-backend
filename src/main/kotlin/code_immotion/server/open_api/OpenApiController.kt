@@ -26,4 +26,10 @@ class OpenApiController(
         logger.error { exception.message }
         return exception
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(exception: Exception): Exception {
+        logger.error { exception.printStackTrace() }
+        return exception
+    }
 }

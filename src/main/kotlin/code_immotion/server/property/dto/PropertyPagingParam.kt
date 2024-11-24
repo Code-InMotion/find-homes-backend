@@ -26,6 +26,15 @@ class PropertyPagingParam(
     @Parameter(example = "1_000_000L", required = false, description = "월세 최소금액")
     val maxRentPrice: Long = 100_000_000L,
 
+    @Parameter(required = false, description = "정렬 기준")
+    val sortType: SortType,
+
+    @Parameter(required = false, description = "이동 소요 시간(분 기준)")
+    val travelTime: Int,
+
+    @Parameter(example = "경기도 성남시 분당구 정지일로 95", required = true, description = "목적지(회사/학교 등)")
+    val destination: String,
+
     @Parameter(required = false, description = "주거 형태")
     houseType: List<HouseType>? = null,
 
