@@ -28,9 +28,9 @@ class PropertyController(private val propertyService: PropertyService) {
 //    @Hidden
     fun deleteAll() = propertyService.deleteAll()
 
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun handleResponseStatusException(exception: IllegalArgumentException): String? {
-        logger.error { exception.message }
-        return exception.message
-    }
+//    @ExceptionHandler(IllegalArgumentException::class)
+//    fun handleResponseStatusException(exception: IllegalArgumentException): String? {
+//        logger.error { exception }
+//        return exception.message
+//    }
 }

@@ -1,8 +1,8 @@
 package code_immotion.server.property
 
 import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
-import code_immotion.server.property.entity.Trade
 import code_immotion.server.property.entity.TradeType
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -22,14 +22,15 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
             val query = Query(
                 Criteria().andOperator(
                     Criteria.where("address").`is`(property.address),
-                    Criteria.where("trade._type").`is`(property.trade.type.name)
+                    Criteria.where("type").`is`(property.type.name)
                 )
             )
 
-            val update = Update().set("trade._type", property.trade.type.name)
-                .set("trade._price", property.trade.price)
-                .set("trade._floor", property.trade.floor)
-                .set("trade._dealDate", property.trade.dealDate)
+            val update = Update()
+                .setOnInsert("trade._type", property.type.name)
+                .setOnInsert("price", property.price)
+                .setOnInsert("floor", property.floor)
+                .setOnInsert("dealDate", property.dealDate)
                 .setOnInsert("address", property.address)
                 .setOnInsert("houseType", property.houseType)
                 .setOnInsert("buildYear", property.buildYear)
@@ -37,47 +38,39 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
                 .setOnInsert("latitude", property.latitude)
                 .setOnInsert("longitude", property.longitude)
 
-            if (property.trade is Trade.MonthlyRent) {
-                update.set("trade.monthlyPrice", property.trade.monthlyPrice)
+            if (property.type == TradeType.MONTHLY_RENT) {
+                update.setOnInsert("monthlyPrice", (property as MonthlyRent).monthlyPrice)
             }
 
             mongoTemplate.upsert(query, update, Property::class.java)
         }
-
     }
 
     fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
 
     fun pagingProperties(pagingParam: PropertyPagingParam): PageImpl<Property> {
         val pageable = pagingParam.toPageable()
-        val priceConditions = pagingParam.tradeType?.map { tradeType ->
+        val criteria = Criteria()
+
+        pagingParam.tradeType.forEach { tradeType ->
             when (tradeType) {
                 TradeType.SALE, TradeType.LONG_TERM_RENT -> {
-                    Criteria.where("trade._price").gte(pagingParam.minPrice / 10_000).lte(pagingParam.maxPrice / 10_000)
-                        .and("trade._type").`is`(tradeType)
+                    criteria.and("price").gte(pagingParam.minPrice / 10_000)
+                        .lte(pagingParam.maxPrice / 10_000)
+                        .and("type").`is`(tradeType)
                 }
 
                 TradeType.MONTHLY_RENT -> {
-                    Criteria().andOperator(
-                        Criteria.where("trade._price").gte(pagingParam.minPrice / 10_000)
-                            .lte(pagingParam.maxPrice / 10_000),
-                        Criteria.where("trade._rentPrice").gte(pagingParam.minRentPrice / 10_000)
-                            .lte(pagingParam.maxRentPrice / 10_000),
-                        Criteria.where("trade._type").`is`(tradeType)
-                    )
+                    criteria.and("price").gte(pagingParam.minPrice / 10_000).lte(pagingParam.maxPrice / 10_000)
+                        .and("rentPrice").gte(pagingParam.minRentPrice / 10_000).lte(pagingParam.maxRentPrice / 10_000)
+                        .and("type").`is`(tradeType)
                 }
             }
         }
 
-        val criteria = priceConditions?.let {
-            Criteria().orOperator(it)
-                .and("houseType").`in`(pagingParam.houseType)
-        }
+        val query = Query(criteria).with(pageable)
 
-        val query = criteria?.let { Query(it).with(pageable) } ?: Query().with(pageable)
-
-
-        val total = mongoTemplate.count(Query(), Property::class.java)
+        val total = mongoTemplate.count(query, Property::class.java)
         val properties = mongoTemplate.find(query, Property::class.java)
 
         return PageImpl(properties, pageable, total)

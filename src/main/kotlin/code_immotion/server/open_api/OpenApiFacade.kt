@@ -44,11 +44,11 @@ class OpenApiFacade(
         }.awaitAll().flatten()
 
         val latestProperties = newProperties.groupBy {
-            it.address to it.trade.type
+            it.address to it.type
         }.filter { (_, properties) ->
             properties.size > 1
         }.mapValues { (_, property) ->
-            property.maxBy { it.trade.dealDate }
+            property.maxBy { it.dealDate }
         }.values.toList()
 
         watch.stop()
@@ -56,6 +56,10 @@ class OpenApiFacade(
         logger.info { "dealMonth: $dealMonth" }
         logger.info { "properties size: ${newProperties.size}" }
         logger.info { "new properties size: ${latestProperties.size}" }
+
+        watch.start()
         propertyService.upsertAll(latestProperties)
+        watch.stop()
+        println(watch.prettyPrint())
     }
 }
