@@ -1,11 +1,11 @@
 package code_immotion.server.property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.index.CompoundIndex
 import java.time.LocalDate
 
 class MonthlyRent(
-    val id: String? = null,
+    id: String? = null,
     val monthlyPrice: Long,
     address: String,
     houseType: HouseType,
@@ -15,9 +15,7 @@ class MonthlyRent(
     dealDate: LocalDate,
     buildYear: Int,
     exclusiveArea: Int,
-    latitude: Double? = null, // 위도
-    longitude: Double? = null, // 경도
-) : Property(address, houseType, type, floor, price, dealDate, buildYear, exclusiveArea) {
+) : Property(id, address, houseType, type, floor, price, monthlyPrice, dealDate, buildYear, exclusiveArea) {
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = MonthlyRent(
             monthlyPrice = jsonNode.path("monthlyRent").asText().replace(",", "").toLong(),

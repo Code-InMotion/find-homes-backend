@@ -1,11 +1,12 @@
 package code_immotion.server.property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
+import org.springframework.data.mongodb.core.index.CompoundIndex
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 class Sale(
-    val id: String? = null,
+     id: String? = null,
     address: String,
     houseType: HouseType,
     type: TradeType,
@@ -14,9 +15,7 @@ class Sale(
     dealDate: LocalDate,
     buildYear: Int,
     exclusiveArea: Int,
-    latitude: Double? = null, // 위도
-    longitude: Double? = null, // 경도
-) : Property(address, houseType, type, floor, price, dealDate, buildYear, exclusiveArea) {
+) : Property(id,address, houseType, type, floor, price,null, dealDate, buildYear, exclusiveArea) {
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = Sale(
             address = "$state $city ${jsonNode.path("umdNm").asText()} ${jsonNode.path("jibun").asText()}",

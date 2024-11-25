@@ -30,8 +30,8 @@ class OpenApiFacade(
                         val saleResponses = openApiClient.sendRequestToData(link, TransactionType.SALE, cityCode.code, dealMonth)
                         val rentResponses = openApiClient.sendRequestToData(link, TransactionType.RENT, cityCode.code, dealMonth)
 
-                        val saleProperties = openApiClient.parseFromXml4Data(saleResponses, cityCode.state, cityCode.city)
-                        val rentProperties = openApiClient.parseFromXml4Data(rentResponses, cityCode.state, cityCode.city)
+                        val saleProperties = openApiClient.parseFromXml4Data(saleResponses, cityCode.state, cityCode.city, link)
+                        val rentProperties = openApiClient.parseFromXml4Data(rentResponses, cityCode.state, cityCode.city, link)
 
                         saleProperties + rentProperties
                     } catch (e: Exception) {
@@ -57,7 +57,7 @@ class OpenApiFacade(
                 try {
                     val rootNode = openApiClient.sendRequestForGeoLocation(property.address)
                     if (!rootNode.isEmpty) {
-                        property.updateCoordinate(rootNode.first())
+                        property.updateLocation(rootNode.first())
                         property
                     } else null
                 } catch (e: Exception) {
@@ -72,5 +72,6 @@ class OpenApiFacade(
         watch.stop()
         println(watch.prettyPrint())
         propertyService.upsertAll(properties)
+        propertyService.createGeoIndex()
     }
 }

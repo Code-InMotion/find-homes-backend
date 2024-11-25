@@ -2,7 +2,6 @@ package code_immotion.server.property
 
 import code_immotion.server.property.dto.PropertyPagingParam
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -14,23 +13,29 @@ private val logger = KotlinLogging.logger { }
 @Tag(name = "PROPERTY API")
 @RestController
 @RequestMapping("property")
-class PropertyController(private val propertyService: PropertyService) {
+class PropertyController(private val propertyFacade: PropertyFacade) {
     @GetMapping
     @PageableAsQueryParam
     @Operation(summary = "사용자 조건에 맞춘 매물 목록 조회")
-    fun readAll(@ParameterObject pagingParam: PropertyPagingParam) = propertyService.pagingProperties(pagingParam)
+    fun pagingProperties(@ParameterObject pagingParam: PropertyPagingParam) = propertyFacade.pagingProperties(pagingParam)
 
     @GetMapping("size")
     @Operation(summary = "전체 매물 수 확인")
-    fun findTotalSize() = propertyService.findTotalSize()
+    fun findTotalSize() = propertyFacade.findTotalSize()
 
     @DeleteMapping
 //    @Hidden
-    fun deleteAll() = propertyService.deleteAll()
+    fun deleteAll() = propertyFacade.deleteAll()
 
 //    @ExceptionHandler(IllegalArgumentException::class)
 //    fun handleResponseStatusException(exception: IllegalArgumentException): String? {
 //        logger.error { exception }
 //        return exception.message
 //    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(exception: Exception): String? {
+        logger.error { exception.printStackTrace() }
+        return exception.message
+    }
 }
