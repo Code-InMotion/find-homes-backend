@@ -24,14 +24,8 @@ class PropertyController(private val propertyFacade: PropertyFacade) {
     fun findTotalSize() = propertyFacade.findTotalSize()
 
     @DeleteMapping
-//    @Hidden
+    @Operation(summary = "전체 매물 삭제")
     fun deleteAll() = propertyFacade.deleteAll()
-
-//    @ExceptionHandler(IllegalArgumentException::class)
-//    fun handleResponseStatusException(exception: IllegalArgumentException): String? {
-//        logger.error { exception }
-//        return exception.message
-//    }
 
     @ExceptionHandler(Exception::class)
     fun handleException(exception: Exception): String? {
