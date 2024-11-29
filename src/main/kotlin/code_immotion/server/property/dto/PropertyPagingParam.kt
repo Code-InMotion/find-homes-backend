@@ -36,13 +36,11 @@ class PropertyPagingParam(
     val destination: String,
 
     @Parameter(required = false, description = "주거 형태")
-    houseType: List<HouseType>? = null,
+    val houseType: List<HouseType> = mutableListOf(),
 
     @Parameter(required = false, description = "거래 형태")
-    tradeType: List<TradeType>? = null
+    val tradeType: List<TradeType> = mutableListOf()
 ) {
-    val houseType: List<HouseType> = houseType ?: HouseType.entries
-    val tradeType: List<TradeType> = tradeType ?: TradeType.entries
 
     init {
         require(maxPrice > minPrice) { "Maximum price must be greater than minimum price" }
