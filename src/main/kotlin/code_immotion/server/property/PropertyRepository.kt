@@ -115,9 +115,3 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         mongoTemplate.remove(query, Property::class.java)
     }
 }
-
-fun calculrateDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
-    val xDiff = x2 - x1
-    val yDiff = y2 - y1
-    return kotlin.math.sqrt(xDiff * xDiff + yDiff * yDiff)
-}
