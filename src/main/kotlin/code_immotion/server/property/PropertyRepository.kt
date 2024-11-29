@@ -1,62 +1,123 @@
 package code_immotion.server.property
 
 import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.dto.PropertyResponse
+import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
-import org.springframework.data.domain.PageImpl
+import org.springframework.data.geo.Metrics
+import org.springframework.data.geo.Point
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType
+import org.springframework.data.mongodb.core.index.GeospatialIndex
 import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.NearQuery
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Repository
 
 @Repository
 class PropertyRepository(private val mongoTemplate: MongoTemplate) {
-    fun pagingProperties(pagingParam: PropertyPagingParam): PageImpl<Property> {
+    fun saveAll(properties: List<Property>) {
+        mongoTemplate.insertAll(properties)
+    }
+
+    fun upsertAll(properties: List<Property>) {
+        properties.forEach { property ->
+            val query = Query(
+                Criteria().andOperator(
+                    Criteria.where("address").`is`(property.address),
+                    Criteria.where("type").`is`(property.type.name)
+                )
+            )
+
+            val update = Update()
+                .setOnInsert("trade._type", property.type.name)
+                .setOnInsert("price", property.price)
+                .setOnInsert("floor", property.floor)
+                .setOnInsert("dealDate", property.dealDate)
+                .setOnInsert("address", property.address)
+                .setOnInsert("houseType", property.houseType)
+                .setOnInsert("buildYear", property.buildYear)
+                .setOnInsert("exclusiveArea", property.exclusiveArea)
+                .setOnInsert("location", property.location)
+
+            if (property.type == TradeType.MONTHLY_RENT) {
+                update.setOnInsert("monthlyPrice", (property as MonthlyRent).monthlyPrice)
+            }
+
+            mongoTemplate.upsert(query, update, Property::class.java)
+        }
+    }
+
+    fun createGeoIndex() {
+        mongoTemplate.indexOps(Property::class.java)
+            .ensureIndex(GeospatialIndex("location").typed(GeoSpatialIndexType.GEO_2DSPHERE))
+    }
+
+    fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
+
+    fun pagingProperties(pagingParam: PropertyPagingParam, latitude: Double, longitude: Double): List<PropertyResponse> {
         val pageable = pagingParam.toPageable()
-        val priceConditions = pagingParam.tradeType?.map { tradeType ->
+        var criteria = Criteria()
+        val orCriteria = mutableListOf<Criteria>()
+
+        pagingParam.tradeType.forEach { tradeType ->
             when (tradeType) {
                 TradeType.SALE, TradeType.LONG_TERM_RENT -> {
-                    Criteria.where("trade.price").gte(pagingParam.minPrice / 10_000).lte(pagingParam.maxPrice / 10_000)
-                        .and("trade.type").`is`(tradeType)
+                    orCriteria.add(
+                        Criteria().andOperator(
+                            Criteria("type").`is`(tradeType),
+                            Criteria("price").gte(pagingParam.minPrice / 10_000)
+                                .lte(pagingParam.maxPrice / 10_000)
+                        )
+                    )
                 }
 
                 TradeType.MONTHLY_RENT -> {
-                    Criteria().andOperator(
-                        Criteria.where("trade.price").gte(pagingParam.minPrice / 10_000).lte(pagingParam.maxPrice / 10_000),
-                        Criteria.where("trade.rentPrice").gte(pagingParam.minRentPrice / 10_000).lte(pagingParam.maxRentPrice / 10_000),
-                        Criteria.where("trade.type").`is`(tradeType)
+                    orCriteria.add(
+                        Criteria().andOperator(
+                            Criteria("type").`is`(tradeType),
+                            Criteria("price").gte(pagingParam.minPrice / 10_000)
+                                .lte(pagingParam.maxPrice / 10_000),
+                            Criteria("rentPrice").gte(pagingParam.minRentPrice / 10_000)
+                                .lte(pagingParam.maxRentPrice / 10_000)
+                        )
                     )
                 }
             }
         }
 
-        val criteria = priceConditions?.let {
-            Criteria().orOperator(it)
-                .and("houseType").`in`(pagingParam.houseType)
+        if (orCriteria.isNotEmpty()) {
+            criteria.orOperator(*orCriteria.toTypedArray())
         }
+        val point = Point(longitude, latitude)
 
-        val query = criteria?.let { Query(it).with(pageable) } ?: Query().with(pageable)
+        val query = NearQuery.near(point)
+            .maxDistance(pagingParam.travelTime * 0.4, Metrics.KILOMETERS)
+            .spherical(true)
+            .query(Query(criteria).with(pageable))
 
+        val geoResults = mongoTemplate.geoNear(query, Property::class.java)
 
-        val total = mongoTemplate.count(Query(), Property::class.java)
-        val properties = mongoTemplate.find(query, Property::class.java)
-
-        return PageImpl(properties, pageable, total)
+        return geoResults.content.map {
+            PropertyResponse.from(it.content, it.distance)
+        }
     }
 
-    fun bulkInsert(properties: List<Property>) {
-        mongoTemplate.insertAll(properties)
+    fun findAllByAddresses(addresses: List<String>): List<Property> {
+        val query = Query(Criteria.where("address").`in`(addresses))
+        return mongoTemplate.find(query, Property::class.java)
     }
-
-    fun findByAddress(address: String): Property? {
-        val query = Query(Criteria.where("address").`is`(address))
-        return mongoTemplate.findOne(query, Property::class.java)
-    }
-
-    fun findAll() = mongoTemplate.findAll(Property::class.java)
 
     fun deleteAll() {
         val query = Query()
         mongoTemplate.remove(query, Property::class.java)
     }
+}
+
+fun calculrateDistance(x1: Double, y1: Double, x2: Double, y2: Double): Double {
+    val xDiff = x2 - x1
+    val yDiff = y2 - y1
+    return kotlin.math.sqrt(xDiff * xDiff + yDiff * yDiff)
 }

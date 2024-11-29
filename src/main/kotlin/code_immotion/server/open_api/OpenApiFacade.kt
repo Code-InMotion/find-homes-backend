@@ -23,17 +23,15 @@ class OpenApiFacade(
     suspend fun syncPropertiesWithOpenApi(dealMonth: Int) = coroutineScope {
         val watch = StopWatch()
         watch.start()
-
-        val properties = ApiLink.entries.flatMap { link ->
+        val newProperties = ApiLink.entries.flatMap { link ->
             OpenApiCityCode.entries.map { cityCode ->
                 async(Dispatchers.IO) {
                     try {
-                        // 각 도시의 매매/임대 데이터를 병렬로 가져옴
-                        val saleResponses = openApiClient.sendRequest(link, TransactionType.SALE, cityCode.code, dealMonth)
-                        val rentResponses = openApiClient.sendRequest(link, TransactionType.RENT, cityCode.code, dealMonth)
+                        val saleResponses = openApiClient.sendRequestToData(link, TransactionType.SALE, cityCode.code, dealMonth)
+                        val rentResponses = openApiClient.sendRequestToData(link, TransactionType.RENT, cityCode.code, dealMonth)
 
-                        val saleProperties = openApiClient.parseFromXml(saleResponses, cityCode.state, cityCode.city)
-                        val rentProperties = openApiClient.parseFromXml(rentResponses, cityCode.state, cityCode.city)
+                        val saleProperties = openApiClient.parseFromXml4Data(saleResponses, cityCode.state, cityCode.city, link)
+                        val rentProperties = openApiClient.parseFromXml4Data(rentResponses, cityCode.state, cityCode.city, link)
 
                         saleProperties + rentProperties
                     } catch (e: Exception) {
@@ -44,10 +42,36 @@ class OpenApiFacade(
             }
         }.awaitAll().flatten()
 
-        propertyService.saveAll(properties)
+        logger.info { "fetching done" }
+
+        val latestProperties = newProperties.groupBy {
+            it.address to it.type
+        }.filter { (_, properties) ->
+            properties.size > 1
+        }.mapValues { (_, property) ->
+            property.maxBy { it.dealDate }
+        }.values.toList()
+
+        val properties = latestProperties.map { property ->
+            async {
+                try {
+                    val rootNode = openApiClient.sendRequestForGeoLocation(property.address)
+                    if (!rootNode.isEmpty) {
+                        property.updateLocation(rootNode.first())
+                        property
+                    } else null
+                } catch (e: Exception) {
+                    logger.error { "Error fetching data for ${property.address}: ${e.message}" }
+                    null
+                }
+            }
+        }.awaitAll()
+            .filterNotNull()
+
+        logger.info { "convert done" }
         watch.stop()
-        logger.info { watch.prettyPrint() }
-        logger.info { "size: ${properties.size}" }
-        logger.info { "dealMonth: $dealMonth" }
+        println(watch.prettyPrint())
+        propertyService.upsertAll(properties)
+        propertyService.createGeoIndex()
     }
 }

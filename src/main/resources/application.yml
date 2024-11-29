@@ -3,10 +3,13 @@ spring:
     active: secret
   data:
     mongodb:
-      uri: mongodb://localhost:27017/homes
+      uri: ${MONGODB_URI}
   output:
     ansi:
       enabled: always
+  mvc:
+    async:
+      request-timeout: -1
 jackson:
   serialization:
     indent-output: true

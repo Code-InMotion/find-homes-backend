@@ -18,9 +18,12 @@ private val logger = KotlinLogging.logger {}
 @Component
 class OpenApiClient {
     @Value("\${openApi.secretKey}")
-    lateinit var secretKey: String
+    lateinit var dataSecretKey: String
 
-    fun sendRequest(
+    @Value("\${kakao.secretKey}")
+    lateinit var kakaoSecretKey: String
+
+    fun sendRequestToData(
         apiLink: ApiLink,
         transactionType: TransactionType,
         cityCode: Int,
@@ -28,7 +31,7 @@ class OpenApiClient {
     ): Iterable<JsonNode> {
         val uri = UriComponentsBuilder
             .fromHttpUrl(apiLink.getUrl(transactionType))
-            .queryParam("serviceKey", secretKey)
+            .queryParam("serviceKey", dataSecretKey)
             .queryParam("LAWD_CD", cityCode)
             .queryParam("DEAL_YMD", dealMonth)
             .queryParam("numOfRows", 9999)
@@ -61,18 +64,47 @@ class OpenApiClient {
         }
     }
 
-    fun parseFromXml(
+    fun sendRequestForGeoLocation(address: String): JsonNode {
+        val uri = UriComponentsBuilder
+            .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
+            .queryParam("query", address)
+            .build()
+            .toUri()
+        try {
+            val xml = RestClient.create()
+                .get()
+                .uri(uri)
+                .header("Authorization", "KakaoAK $kakaoSecretKey")
+                .retrieve()
+                .body(String::class.java)
+
+            return ObjectMapper().readTree(xml).path("documents")
+        } catch (e: Exception) {
+            logger.error { e.printStackTrace() }
+            throw Exception("kakao request error")
+        }
+    }
+
+    fun parseFromXml4Data(
         items: Iterable<JsonNode>,
         state: String,
-        city: String
+        city: String,
+        link: ApiLink
     ): List<Property> {
         return items.map { item ->
-            val houseType = when (item.path("houseType").asText()) {
-                "단독" -> HouseType.SINGLE_FAMILY
-                "다가구" -> HouseType.MULTI_FAMILY
-                "연립" -> HouseType.TOWNHOUSE
-                "다세대" -> HouseType.MULTI_UNIT
-                else -> HouseType.APARTMENT
+            val houseType = when (link) {
+                ApiLink.OFFICETEL -> HouseType.OFFICETEL
+                ApiLink.APARTMENT -> HouseType.APARTMENT
+                else -> {
+                    when (item.path("houseType").asText()) {
+                        "연립다세대", "연립" -> HouseType.TOWNHOUSE
+                        "다세대" -> HouseType.MULTI_UNIT
+                        else -> {
+                            logger.error { item }
+                            throw Exception("주택 유형 parsing 오류")
+                        }
+                    }
+                }
             }
             Property.from(item, state, city, houseType)
         }
