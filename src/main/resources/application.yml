@@ -1,9 +1,6 @@
 spring:
   profiles:
-    active: secret
-  data:
-    mongodb:
-      uri: ${MONGODB_URI}
+    active: secret, mongodb
   output:
     ansi:
       enabled: always
