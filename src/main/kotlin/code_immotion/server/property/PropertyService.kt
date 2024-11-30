@@ -1,6 +1,6 @@
 package code_immotion.server.property
 
-import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.dto.PropertyCondition
 import code_immotion.server.property.dto.PropertyResponse
 import code_immotion.server.property.entity.Property
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -10,7 +10,7 @@ private val logger = KotlinLogging.logger { }
 
 @Service
 class PropertyService(private val propertyRepository: PropertyRepository) {
-    fun pagingProperties(pagingParam: PropertyPagingParam, latitude: Double, longitude: Double): List<PropertyResponse> =
+    fun pagingProperties(pagingParam: PropertyCondition, latitude: Double, longitude: Double): List<PropertyResponse> =
         propertyRepository.pagingProperties(pagingParam, latitude, longitude)
 
     fun upsertAll(properties: List<Property>) = propertyRepository.upsertAll(properties)

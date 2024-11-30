@@ -1,7 +1,7 @@
 package code_immotion.server.property
 
 import code_immotion.server.open_api.client.OpenApiClient
-import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.dto.PropertyCondition
 import code_immotion.server.property.dto.PropertyResponse
 import org.springframework.stereotype.Component
 
@@ -10,7 +10,7 @@ class PropertyFacade(
     private val propertyService: PropertyService,
     private val openApiClient: OpenApiClient
 ) {
-    fun pagingProperties(pagingParam: PropertyPagingParam): List<PropertyResponse> {
+    fun pagingProperties(pagingParam: PropertyCondition): List<PropertyResponse> {
         val rootNode = openApiClient.sendRequestForGeoLocation(pagingParam.destination)
         if (rootNode.isEmpty) {
             throw Exception("잘못된 주소입니다")

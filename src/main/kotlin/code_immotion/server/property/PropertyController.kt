@@ -1,6 +1,6 @@
 package code_immotion.server.property
 
-import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.dto.PropertyCondition
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -17,7 +17,7 @@ class PropertyController(private val propertyFacade: PropertyFacade) {
     @GetMapping
     @PageableAsQueryParam
     @Operation(summary = "사용자 조건에 맞춘 매물 목록 조회")
-    fun pagingProperties(@ParameterObject pagingParam: PropertyPagingParam) = propertyFacade.pagingProperties(pagingParam)
+    fun pagingProperties(@ParameterObject pagingParam: PropertyCondition) = propertyFacade.pagingProperties(pagingParam)
 
     @GetMapping("size")
     @Operation(summary = "전체 매물 수 확인")

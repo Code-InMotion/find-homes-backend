@@ -6,21 +6,21 @@ import java.time.LocalDate
 class DepositRent(
     id: String? = null,
     address: String,
-    addrssNumber: String,
+    addressNumber: String,
     houseType: HouseType,
-    type: TradeType,
+    tradeType: TradeType,
     floor: Int,
     price: Long,
     dealDate: LocalDate,
     buildYear: Int,
     exclusiveArea: Int,
-) : Property(id, address, addrssNumber, houseType, type, floor, price, null, dealDate, buildYear, exclusiveArea) {
+) : Property(id, address, addressNumber, houseType, tradeType, floor, price, null, dealDate, buildYear, exclusiveArea) {
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = DepositRent(
             address = "$state $city ${jsonNode.path("umdNm").asText()}",
-            addrssNumber = jsonNode.path("jibun").asText(),
+            addressNumber = jsonNode.path("jibun").asText(),
             houseType = houseType,
-            type = TradeType.LONG_TERM_RENT,
+            tradeType = TradeType.LONG_TERM_RENT,
             floor = jsonNode.path("floor").asInt(),
             price = jsonNode.path("deposit").asText().replace(",", "").toLong(),
             buildYear = jsonNode.path("buildYear").asInt(),

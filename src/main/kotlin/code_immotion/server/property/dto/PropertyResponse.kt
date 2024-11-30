@@ -7,10 +7,11 @@ import org.springframework.data.geo.Distance
 
 data class PropertyResponse(
     val id: String,
-    val type: TradeType,
+    val tradeType: TradeType,
     val price: Long,
     val rentPrice: Long?,
     val address: String,
+    val addressNumber: String,
     val houseType: HouseType,
     val floor: Int,
 //    val totalFloor: Int,
@@ -21,10 +22,11 @@ data class PropertyResponse(
         fun from(property: Property, distance: Distance): PropertyResponse {
             return PropertyResponse(
                 id = property.id!!,
-                type = property.type,
+                tradeType = property.tradeType,
                 price = property.price,
-                rentPrice = property.rentPrint,
+                rentPrice = property.rentPrice,
                 address = property.address,
+                addressNumber = property.addressNumber,
                 houseType = property.houseType,
                 floor = property.floor,
 //                totalFloor = property.totalFloor,

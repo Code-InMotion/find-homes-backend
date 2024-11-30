@@ -1,7 +1,7 @@
 package code_immotion.server.property
 
-import code_immotion.server.property.dto.PagingPropertyResponse
 import code_immotion.server.property.dto.PropertyCondition
+import code_immotion.server.property.dto.PropertyResponse
 import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
@@ -26,24 +26,24 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         properties.forEach { property ->
             val query = Query(
                 Criteria().andOperator(
-                    Criteria.where("address").`is`(property.address),
-                    Criteria.where("type").`is`(property.type.name)
+                    Criteria.where(Property::address.name).`is`(property.address),
+                    Criteria.where(Property::tradeType.name).`is`(property.tradeType.name)
                 )
             )
 
             val update = Update()
-                .setOnInsert("price", property.price)
-                .setOnInsert("floor", property.floor)
-                .setOnInsert("dealDate", property.dealDate)
-                .setOnInsert("address", property.address)
-                .setOnInsert("addressNumber", property.addressNumber)
-                .setOnInsert("houseType", property.houseType)
-                .setOnInsert("buildYear", property.buildYear)
-                .setOnInsert("exclusiveArea", property.exclusiveArea)
-                .setOnInsert("location", property.location)
+                .setOnInsert(Property::price.name, property.price)
+                .setOnInsert(Property::floor.name, property.floor)
+                .setOnInsert(Property::dealDate.name, property.dealDate)
+                .setOnInsert(Property::address.name, property.address)
+                .setOnInsert(Property::addressNumber.name, property.addressNumber)
+                .setOnInsert(Property::houseType.name, property.houseType)
+                .setOnInsert(Property::buildYear.name, property.buildYear)
+                .setOnInsert(Property::exclusiveArea.name, property.exclusiveArea)
+                .setOnInsert(Property::location.name, property.location)
 
-            if (property.type == TradeType.MONTHLY_RENT) {
-                update.setOnInsert("monthlyPrice", (property as MonthlyRent).monthlyPrice)
+            if (property.tradeType == TradeType.MONTHLY_RENT) {
+                update.setOnInsert("rentPrice", (property as MonthlyRent).rentPrice)
             }
 
             mongoTemplate.upsert(query, update, Property::class.java)
@@ -52,36 +52,34 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
     fun createGeoIndex() {
         mongoTemplate.indexOps(Property::class.java)
-            .ensureIndex(GeospatialIndex("location").typed(GeoSpatialIndexType.GEO_2DSPHERE))
+            .ensureIndex(GeospatialIndex(Property::location.name).typed(GeoSpatialIndexType.GEO_2DSPHERE))
     }
 
     fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
 
-    fun pagingProperties(pagingParam: PropertyCondition, latitude: Double, longitude: Double): PagingPropertyResponse {
-        val pageable = pagingParam.toPageable()
-        var criteria = Criteria()
+    fun pagingProperties(propertyCondition: PropertyCondition, latitude: Double, longitude: Double): List<PropertyResponse> {
+        val criteria = Criteria()
         val orCriteria = mutableListOf<Criteria>()
 
-        pagingParam.tradeType.forEach { tradeType ->
+        propertyCondition.tradeType.forEach { tradeType ->
             when (tradeType) {
                 TradeType.SALE, TradeType.LONG_TERM_RENT -> {
                     orCriteria.add(
                         Criteria().andOperator(
-                            Criteria("type").`is`(tradeType),
-                            Criteria("price").gte(pagingParam.minPrice / 10_000)
-                                .lte(pagingParam.maxPrice / 10_000)
+                            Criteria(Property::tradeType.name).`is`(tradeType.name),
+                            Criteria(Property::price.name).gte(propertyCondition.minPrice / 10_000)
+                                .lte(propertyCondition.maxPrice / 10_000)
                         )
                     )
                 }
-
                 TradeType.MONTHLY_RENT -> {
                     orCriteria.add(
                         Criteria().andOperator(
-                            Criteria("type").`is`(tradeType),
-                            Criteria("price").gte(pagingParam.minPrice / 10_000)
-                                .lte(pagingParam.maxPrice / 10_000),
-                            Criteria("rentPrice").gte(pagingParam.minRentPrice / 10_000)
-                                .lte(pagingParam.maxRentPrice / 10_000)
+                            Criteria(Property::tradeType.name).`is`(tradeType.name),
+                            Criteria(Property::price.name).gte(propertyCondition.minPrice / 10_000)
+                                .lte(propertyCondition.maxPrice / 10_000),
+                            Criteria(Property::rentPrice.name).gte(propertyCondition.minRentPrice / 10_000)
+                                .lte(propertyCondition.maxRentPrice / 10_000)
                         )
                     )
                 }
@@ -94,13 +92,13 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         val point = Point(longitude, latitude)
 
         val query = NearQuery.near(point)
-            .maxDistance(pagingParam.travelTime * 0.4, Metrics.KILOMETERS)
+            .maxDistance(propertyCondition.travelTime * 0.4, Metrics.KILOMETERS)
             .spherical(true)
-            .query(Query(criteria).with(pageable))
+            .query(Query(criteria))
 
         val geoResults = mongoTemplate.geoNear(query, Property::class.java)
 
-        return PagingPropertyResponse.from(geoResults.content, geoResults.count(), pageable.pageNumber)
+        return geoResults.map { PropertyResponse.from(it.content, it.distance) }
     }
 
     fun findAllByAddresses(addresses: List<String>): List<Property> {

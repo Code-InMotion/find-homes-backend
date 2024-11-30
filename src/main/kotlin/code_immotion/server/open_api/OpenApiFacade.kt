@@ -45,7 +45,7 @@ class OpenApiFacade(
         logger.info { "fetching done" }
 
         val latestProperties = newProperties.groupBy {
-            it.address to it.type
+            it.address to it.tradeType
         }.filter { (_, properties) ->
             properties.size > 1
         }.mapValues { (_, property) ->
@@ -69,6 +69,7 @@ class OpenApiFacade(
             .filterNotNull()
 
         logger.info { "convert done" }
+        logger.info { "dealMonth : $dealMonth" }
         watch.stop()
         println(watch.prettyPrint())
         propertyService.upsertAll(properties)

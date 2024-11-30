@@ -7,23 +7,23 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 
-class PropertyPagingParam(
+class PropertyCondition(
     @Parameter(example = "0", required = true)
     val page: Int = 0,
 
     @Parameter(example = "10", required = true)
     val size: Int = 20,
 
-    @Parameter(example = "1_000_000L", required = false, description = "매매 / 보증금 최고금액")
+    @Parameter(example = "0", required = false, description = "매매 / 보증금 최소금액")
     val minPrice: Long = 0,
 
-    @Parameter(example = "1_000_000L", required = false, description = "매매 / 보증금 최소금액")
-    val maxPrice: Long = 100_000_000L,
+    @Parameter(example = "10_000_000_000L", required = false, description = "매매 / 보증금 최고금액")
+    val maxPrice: Long = 10_000_000_000L,
 
-    @Parameter(example = "1_000_000L", required = false, description = "월세 최고금액")
+    @Parameter(example = "0", required = false, description = "월세 최소금액")
     val minRentPrice: Long = 0,
 
-    @Parameter(example = "1_000_000L", required = false, description = "월세 최소금액")
+    @Parameter(example = "100_000_000L", required = false, description = "월세 최고금액")
     val maxRentPrice: Long = 100_000_000L,
 
 //    @Parameter(required = false, description = "정렬 기준")
@@ -44,9 +44,5 @@ class PropertyPagingParam(
 
     init {
         require(maxPrice > minPrice) { "Maximum price must be greater than minimum price" }
-    }
-
-    fun toPageable(): Pageable {
-        return PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "trade.dealDate"))
     }
 }

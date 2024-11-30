@@ -5,24 +5,24 @@ import java.time.LocalDate
 
 class MonthlyRent(
     id: String? = null,
-    val monthlyPrice: Long,
+    rentPrice: Long,
     address: String,
     addressNumber: String,
     houseType: HouseType,
-    type: TradeType,
+    tradeType: TradeType,
     floor: Int,
     price: Long,
     dealDate: LocalDate,
     buildYear: Int,
     exclusiveArea: Int,
-) : Property(id, address, addressNumber, houseType, type, floor, price, monthlyPrice, dealDate, buildYear, exclusiveArea) {
+) : Property(id, address, addressNumber, houseType, tradeType, floor, price, rentPrice, dealDate, buildYear, exclusiveArea) {
     companion object {
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType) = MonthlyRent(
-            monthlyPrice = jsonNode.path("monthlyRent").asText().replace(",", "").toLong(),
+            rentPrice = jsonNode.path("monthlyRent").asText().replace(",", "").toLong(),
             address = "$state $city ${jsonNode.path("umdNm").asText()}",
             addressNumber = jsonNode.path("jibun").asText(),
             houseType = houseType,
-            type = TradeType.MONTHLY_RENT,
+            tradeType = TradeType.MONTHLY_RENT,
             floor = jsonNode.path("floor").asInt(),
             price = jsonNode.path("deposit").asText().replace(",", "").toLong(),
             buildYear = jsonNode.path("buildYear").asInt(),
