@@ -14,8 +14,7 @@ data class PropertyResponse(
     val addressNumber: String,
     val houseType: HouseType,
     val floor: Int,
-//    val totalFloor: Int,
-//    val travelTime: Int,
+    val travelTime: Int,
     val distance: Distance
 ) {
     companion object {
@@ -29,8 +28,7 @@ data class PropertyResponse(
                 addressNumber = property.addressNumber,
                 houseType = property.houseType,
                 floor = property.floor,
-//                totalFloor = property.totalFloor,
-//                travelTime = travelTime,
+                travelTime = 60, //todo 이동 시간 수정 필요
                 distance = distance,
             )
         }

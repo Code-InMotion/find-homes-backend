@@ -2,6 +2,7 @@ package code_immotion.server.property
 
 import code_immotion.server.property.dto.PropertyCondition
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
@@ -15,15 +16,15 @@ private val logger = KotlinLogging.logger { }
 @RequestMapping("property")
 class PropertyController(private val propertyFacade: PropertyFacade) {
     @GetMapping
-    @PageableAsQueryParam
-    @Operation(summary = "사용자 조건에 맞춘 매물 목록 조회")
-    fun pagingProperties(@ParameterObject pagingParam: PropertyCondition) = propertyFacade.pagingProperties(pagingParam)
+    @Operation(summary = "사용자 조건에 동내 추천")
+    fun findRegionWithCondition(@ParameterObject condition: PropertyCondition) = propertyFacade.findRegionWithCondition(condition)
 
     @GetMapping("size")
     @Operation(summary = "전체 매물 수 확인")
     fun findTotalSize() = propertyFacade.findTotalSize()
 
     @DeleteMapping
+    @Hidden
     @Operation(summary = "전체 매물 삭제")
     fun deleteAll() = propertyFacade.deleteAll()
 

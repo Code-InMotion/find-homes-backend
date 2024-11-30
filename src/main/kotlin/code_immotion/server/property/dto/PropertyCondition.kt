@@ -3,17 +3,8 @@ package code_immotion.server.property.dto
 import code_immotion.server.property.entity.HouseType
 import code_immotion.server.property.entity.TradeType
 import io.swagger.v3.oas.annotations.Parameter
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 
 class PropertyCondition(
-    @Parameter(example = "0", required = true)
-    val page: Int = 0,
-
-    @Parameter(example = "10", required = true)
-    val size: Int = 20,
-
     @Parameter(example = "0", required = false, description = "매매 / 보증금 최소금액")
     val minPrice: Long = 0,
 
@@ -36,10 +27,10 @@ class PropertyCondition(
     val destination: String,
 
     @Parameter(required = false, description = "주거 형태")
-    val houseType: List<HouseType> = mutableListOf(),
+    val houseType: List<HouseType> = HouseType.entries.toList(),
 
     @Parameter(required = false, description = "거래 형태")
-    val tradeType: List<TradeType> = mutableListOf()
+    val tradeType: List<TradeType> = TradeType.entries.toList()
 ) {
 
     init {

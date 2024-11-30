@@ -69,10 +69,9 @@ class OpenApiFacade(
             .filterNotNull()
 
         logger.info { "convert done" }
-        logger.info { "dealMonth : $dealMonth" }
         watch.stop()
         println(watch.prettyPrint())
+        logger.info { "dealMonth : $dealMonth" }
         propertyService.upsertAll(properties)
-        propertyService.createGeoIndex()
     }
 }
