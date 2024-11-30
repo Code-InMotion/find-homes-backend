@@ -1,7 +1,7 @@
 package code_immotion.server.property
 
-import code_immotion.server.property.dto.PropertyPagingParam
-import code_immotion.server.property.dto.PropertyResponse
+import code_immotion.server.property.dto.PagingPropertyResponse
+import code_immotion.server.property.dto.PropertyCondition
 import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
@@ -32,11 +32,11 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
             )
 
             val update = Update()
-                .setOnInsert("trade._type", property.type.name)
                 .setOnInsert("price", property.price)
                 .setOnInsert("floor", property.floor)
                 .setOnInsert("dealDate", property.dealDate)
                 .setOnInsert("address", property.address)
+                .setOnInsert("addressNumber", property.addressNumber)
                 .setOnInsert("houseType", property.houseType)
                 .setOnInsert("buildYear", property.buildYear)
                 .setOnInsert("exclusiveArea", property.exclusiveArea)
@@ -57,7 +57,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
     fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
 
-    fun pagingProperties(pagingParam: PropertyPagingParam, latitude: Double, longitude: Double): List<PropertyResponse> {
+    fun pagingProperties(pagingParam: PropertyCondition, latitude: Double, longitude: Double): PagingPropertyResponse {
         val pageable = pagingParam.toPageable()
         var criteria = Criteria()
         val orCriteria = mutableListOf<Criteria>()
@@ -100,9 +100,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
         val geoResults = mongoTemplate.geoNear(query, Property::class.java)
 
-        return geoResults.content.map {
-            PropertyResponse.from(it.content, it.distance)
-        }
+        return PagingPropertyResponse.from(geoResults.content, geoResults.count(), pageable.pageNumber)
     }
 
     fun findAllByAddresses(addresses: List<String>): List<Property> {

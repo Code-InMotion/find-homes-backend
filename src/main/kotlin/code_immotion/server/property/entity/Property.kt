@@ -11,6 +11,7 @@ import java.time.LocalDate
 open class Property(
     var id: String?,
     val address: String,
+    val addressNumber: String,
     val houseType: HouseType,
     val type: TradeType,
     val floor: Int,
