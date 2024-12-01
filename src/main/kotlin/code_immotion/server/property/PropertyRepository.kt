@@ -2,6 +2,7 @@ package code_immotion.server.property
 
 import code_immotion.server.property.dto.PropertyAggregation
 import code_immotion.server.property.dto.PropertyCondition
+import code_immotion.server.property.dto.PropertyResponse
 import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
@@ -20,10 +21,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class PropertyRepository(private val mongoTemplate: MongoTemplate) {
-    fun saveAll(properties: List<Property>) {
-        mongoTemplate.insertAll(properties)
-    }
-
     fun upsertAll(properties: List<Property>) {
         properties.forEach { property ->
             val query = Query(
@@ -32,15 +29,19 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
                     Criteria.where(Property::addressNumber.name).`is`(property.addressNumber),
                     Criteria.where(Property::floor.name).`is`(property.floor),
                     Criteria.where(Property::houseType.name).`is`(property.houseType.name),
+                    Criteria.where(Property::tradeType.name).`is`(property.tradeType.name),
                     Criteria.where(Property::exclusiveArea.name).`is`(property.houseType.name)
                 )
             )
 
             val update = Update()
+                .setOnInsert(Property::address.name, property.address)
+                .setOnInsert(Property::addressNumber.name, property.addressNumber)
                 .setOnInsert(Property::price.name, property.price)
                 .setOnInsert(Property::floor.name, property.floor)
                 .setOnInsert(Property::dealDate.name, property.dealDate)
                 .setOnInsert(Property::houseType.name, property.houseType)
+                .setOnInsert(Property::tradeType.name, property.tradeType)
                 .setOnInsert(Property::buildYear.name, property.buildYear)
                 .setOnInsert(Property::exclusiveArea.name, property.exclusiveArea)
                 .setOnInsert(Property::location.name, property.location)
@@ -49,19 +50,36 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
                 update.setOnInsert("rentPrice", (property as MonthlyRent).rentPrice)
             }
 
-            mongoTemplate.upsert(query, update, Property::class.java)
             createGeoIndex()
+            mongoTemplate.upsert(query, update, Property::class.java)
         }
-    }
-
-    private fun createGeoIndex() {
-        mongoTemplate.indexOps(Property::class.java)
-            .ensureIndex(GeospatialIndex(Property::location.name).typed(GeoSpatialIndexType.GEO_2DSPHERE))
     }
 
     fun findTotalSize() = mongoTemplate.count(Query(), Property::class.java)
 
-    fun findRegionWithCondition(condition: PropertyCondition, latitude: Double, longitude: Double): List<PropertyAggregation> {
+    fun findProperty(propertyId: String, point: Point): PropertyResponse? {
+        val nearQuery = NearQuery.near(point)
+            .spherical(true)
+            .distanceMultiplier(6371.0)
+
+        val criteria = Criteria.where(Property::id.name).`is`(propertyId)
+        nearQuery.query(Query.query(criteria))
+
+        val geoResults = mongoTemplate.geoNear(
+            nearQuery,
+            Property::class.java,
+            "property"
+        )
+
+        return geoResults.firstOrNull()?.let { geoResult ->
+            PropertyResponse.from(
+                property = geoResult.content,
+                distance = geoResult.distance
+            )
+        }
+    }
+
+    fun findRegionWithCondition(condition: PropertyCondition, point: Point): List<PropertyAggregation> {
         val criteria = condition.tradeType.map { tradeType ->
             val conditions = mutableListOf(
                 Criteria(Property::tradeType.name).`is`(tradeType.name),
@@ -77,20 +95,20 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         }.let { Criteria().orOperator(*it.toTypedArray()) }
 
         val geoNearOperation = Aggregation.geoNear(
-            NearQuery.near(Point(longitude, latitude))
+            NearQuery.near(point)
                 .maxDistance(condition.travelTime * 0.4, Metrics.KILOMETERS)
-                .spherical(true)
-                .distanceMultiplier(0.001),
+                .spherical(true),
             "distance"
         )
 
         val matchOperation = Aggregation.match(criteria)
-        val groupOperation = Aggregation.group(Property::address.name, Property::addressNumber.name, Property::houseType.name, Property::tradeType.name)
-            .count().`as`("propertyCount")
-            .avg("price").`as`("averagePrice")
-            .avg("distance").`as`("averageDistance")
-            .first("address").`as`("address")
-        val sortOperation = Aggregation.sort(Sort.Direction.DESC, "propertyCount")
+        val groupOperation = Aggregation.group(Property::address.name)
+            .count().`as`(PropertyAggregation::propertyCount.name)
+            .avg(Property::price.name).`as`(PropertyAggregation::averagePrice.name)
+            .avg("distance").`as`(PropertyAggregation::averageDistance.name)
+            .first(Property::address.name).`as`(PropertyAggregation::address.name)
+        val sortOperation = Aggregation.sort(Sort.Direction.DESC, PropertyAggregation::propertyCount.name)
+            .and(Sort.Direction.ASC, condition.sortType.value)
         val limitOperation = Aggregation.limit(5)
 
         val aggregation = Aggregation.newAggregation(
@@ -115,4 +133,8 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
     fun deleteAll() = mongoTemplate.remove(Query(), Property::class.java)
 
+    private fun createGeoIndex() {
+        mongoTemplate.indexOps(Property::class.java)
+            .ensureIndex(GeospatialIndex(Property::location.name).typed(GeoSpatialIndexType.GEO_2DSPHERE))
+    }
 }
