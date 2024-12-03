@@ -95,16 +95,7 @@ class OpenApiClient {
             val houseType = when (link) {
                 ApiLink.OFFICETEL -> HouseType.OFFICETEL
                 ApiLink.APARTMENT -> HouseType.APARTMENT
-                else -> {
-                    when (item.path("houseType").asText()) {
-                        "연립다세대", "연립" -> HouseType.TOWNHOUSE
-                        "다세대" -> HouseType.MULTI_UNIT
-                        else -> {
-                            logger.error { item }
-                            throw Exception("주택 유형 parsing 오류")
-                        }
-                    }
-                }
+                else -> HouseType.VILLA
             }
             Property.from(item, state, city, houseType)
         }

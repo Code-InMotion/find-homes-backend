@@ -1,11 +1,12 @@
 package code_immotion.server.property
 
-import code_immotion.server.property.dto.PropertyPagingParam
+import code_immotion.server.property.dto.PropertyCondition
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springdoc.core.annotations.ParameterObject
-import org.springdoc.core.converters.models.PageableAsQueryParam
 import org.springframework.web.bind.annotation.*
 
 private val logger = KotlinLogging.logger { }
@@ -15,9 +16,12 @@ private val logger = KotlinLogging.logger { }
 @RequestMapping("property")
 class PropertyController(private val propertyFacade: PropertyFacade) {
     @GetMapping
-    @PageableAsQueryParam
-    @Operation(summary = "사용자 조건에 맞춘 매물 목록 조회")
-    fun pagingProperties(@ParameterObject pagingParam: PropertyPagingParam) = propertyFacade.pagingProperties(pagingParam)
+    @Operation(summary = "사용자 조건에 동내 추천")
+    fun findRegionWithCondition(@ParameterObject condition: PropertyCondition) = propertyFacade.findRegionWithCondition(condition)
+
+    @GetMapping("detail")
+    @Operation(summary = "매물 상세 조회")
+    fun findProperty(@Parameter propertyId: String, @Parameter destination : String ) = propertyFacade.findProperty(propertyId,destination)
 
     @GetMapping("size")
     @Operation(summary = "전체 매물 수 확인")
@@ -25,13 +29,8 @@ class PropertyController(private val propertyFacade: PropertyFacade) {
 
     @DeleteMapping
 //    @Hidden
+    @Operation(summary = "전체 매물 삭제")
     fun deleteAll() = propertyFacade.deleteAll()
-
-//    @ExceptionHandler(IllegalArgumentException::class)
-//    fun handleResponseStatusException(exception: IllegalArgumentException): String? {
-//        logger.error { exception }
-//        return exception.message
-//    }
 
     @ExceptionHandler(Exception::class)
     fun handleException(exception: Exception): String? {
