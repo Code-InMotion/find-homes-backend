@@ -12,15 +12,15 @@ class PropertyFacade(
     private val propertyService: PropertyService,
     private val openApiClient: OpenApiClient
 ) {
-    fun findRegionWithCondition(condition: PropertyCondition): List<PropertyAggregation.Info> {
+    fun findRegionWithCondition(condition: PropertyCondition.Recommend): List<PropertyAggregation.Info> {
         val point = extractPoint(condition.destination)
         return propertyService.findRegionWithCondition(condition, point)
             .map { PropertyAggregation.Info.from(it) }
     }
 
-    fun findRegionProperties(address: String, condition: PropertyCondition): List<PropertyResponse> {
+    fun findRegionProperties( condition: PropertyCondition.Address): List<PropertyResponse> {
         val point = extractPoint(condition.destination)
-        return propertyService.findRegionProperties(address, condition, point)
+        return propertyService.findRegionProperties( condition, point)
     }
 
     fun findProperty(propertyId: String, destination: String): PropertyResponse {

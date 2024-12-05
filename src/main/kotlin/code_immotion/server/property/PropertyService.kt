@@ -12,7 +12,7 @@ private val logger = KotlinLogging.logger { }
 
 @Service
 class PropertyService(private val propertyRepository: PropertyRepository) {
-    fun findRegionWithCondition(condition: PropertyCondition, point: Point): List<PropertyAggregation.Data> =
+    fun findRegionWithCondition(condition: PropertyCondition.Recommend, point: Point): List<PropertyAggregation.Data> =
         propertyRepository.findRegionWithCondition(condition, point)
 
     fun findProperty(propertyId: String, point: Point): PropertyResponse {
@@ -20,10 +20,12 @@ class PropertyService(private val propertyRepository: PropertyRepository) {
         return property ?: throw Exception("해당 매물을 찾을 수 없습니다.")
     }
 
-    fun findRegionProperties(address: String, condition: PropertyCondition, point: Point) =
-        findRegionWithCondition(condition, point)
-            .first { it.address == address }
+    fun findRegionProperties(condition: PropertyCondition.Address, point: Point): List<PropertyResponse> {
+        val recommendCondition = PropertyCondition.Recommend.from(condition)
+        return findRegionWithCondition(recommendCondition, point)
+            .first { it.address == condition.address }
             .properties
+    }
 
 
     fun upsertAll(properties: List<Property>) = propertyRepository.upsertAll(properties)
