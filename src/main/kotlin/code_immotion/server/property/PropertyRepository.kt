@@ -6,6 +6,7 @@ import code_immotion.server.property.dto.PropertyResponse
 import code_immotion.server.property.entity.MonthlyRent
 import code_immotion.server.property.entity.Property
 import code_immotion.server.property.entity.TradeType
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Sort
 import org.springframework.data.geo.Metrics
 import org.springframework.data.geo.Point
@@ -79,8 +80,105 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         }
     }
 
-    fun findRegionWithCondition(condition: PropertyCondition, point: Point): List<PropertyAggregation> {
-        val criteria = condition.tradeType.map { tradeType ->
+    @Cacheable(
+        cacheNames = ["region-stats"],
+        key = "#condition.hashCode() + '_' + #point.toString()"
+    )
+    fun findRegionWithCondition(condition: PropertyCondition, point: Point): List<PropertyAggregation.Data> {
+        val criteria = createPropertyCriteria(condition)
+
+        val propertiesProjection = org.bson.Document(
+            mapOf(
+                "_id" to "\$_id",
+                PropertyResponse::price.name to "\$${PropertyResponse::price.name}",
+                PropertyResponse::rentPrice.name to "\$${PropertyResponse::rentPrice.name}",
+                PropertyResponse::tradeType.name to "\$${PropertyResponse::tradeType.name}",
+                PropertyResponse::address.name to "\$${PropertyResponse::address.name}",
+                PropertyResponse::addressNumber.name to "\$${PropertyResponse::addressNumber.name}",
+                PropertyResponse::floor.name to "\$${PropertyResponse::floor.name}",
+                PropertyResponse::houseType.name to "\$${PropertyResponse::houseType.name}",
+                PropertyResponse::dealDate.name to "\$${PropertyResponse::dealDate.name}",
+                PropertyResponse::exclusiveArea.name to "\$${PropertyResponse::exclusiveArea.name}",
+                PropertyResponse::buildYear.name to "\$${PropertyResponse::buildYear.name}",
+                PropertyResponse::distance.name to "\$distance"
+            )
+        )
+
+        val aggregation = Aggregation.newAggregation(
+            Aggregation.geoNear(
+                NearQuery.near(point)
+                    .maxDistance(condition.travelTime * 0.4, Metrics.KILOMETERS)
+                    .spherical(true),
+                PropertyResponse::distance.name
+            ),
+            Aggregation.match(criteria),
+            Aggregation.group(Property::address.name)
+                .count().`as`(PropertyAggregation.Data::propertyCount.name)
+                .avg(Property::price.name).`as`(PropertyAggregation.Data::averagePrice.name)
+                .avg("distance").`as`(PropertyAggregation.Data::averageDistance.name)
+                .first(Property::address.name).`as`(PropertyAggregation.Data::address.name)
+                .push(propertiesProjection).`as`(PropertyAggregation.Data::properties.name),
+            Aggregation.sort(Sort.Direction.DESC, PropertyAggregation.Data::propertyCount.name)
+                .and(Sort.Direction.ASC, condition.sortType.value),
+            Aggregation.limit(5)
+        )
+
+        return mongoTemplate.aggregate(
+            aggregation,
+            Property::class.java,
+            PropertyAggregation.Data::class.java
+        ).mappedResults
+    }
+
+    @Cacheable(
+        cacheNames = ["region-properties"],
+        key = "#address + '_' + #condition.hashCode() + '_' + #point.toString()"
+    )
+    fun findPropertiesByRegion(
+        address: String,
+        condition: PropertyCondition,
+        point: Point
+    ): List<PropertyResponse> {
+        val criteria = createPropertyCriteria(condition)
+            .and(Property::address.name).`is`(address)
+
+        val aggregation = Aggregation.newAggregation(
+            Aggregation.geoNear(
+                NearQuery.near(point)
+                    .maxDistance(condition.travelTime * 0.4, Metrics.KILOMETERS)
+                    .spherical(true),
+                PropertyResponse::distance.name
+            ),
+            Aggregation.match(criteria),
+            Aggregation.project()
+                .andExpression("_id").`as`(PropertyResponse::id.name)
+                .andInclude(
+                    PropertyResponse::id.name,
+                    PropertyResponse::price.name,
+                    PropertyResponse::rentPrice.name,
+                    PropertyResponse::tradeType.name,
+                    PropertyResponse::address.name,
+                    PropertyResponse::addressNumber.name,
+                    PropertyResponse::floor.name,
+                    PropertyResponse::houseType.name,
+                    PropertyResponse::dealDate.name,
+                    PropertyResponse::exclusiveArea.name,
+                    PropertyResponse::buildYear.name,
+
+                    )
+                .and("distance").`as`("distance"),
+            Aggregation.sort(Sort.Direction.ASC, condition.sortType.value)
+        )
+
+        return mongoTemplate.aggregate(
+            aggregation,
+            Property::class.java,
+            PropertyResponse::class.java
+        ).mappedResults
+    }
+
+    private fun createPropertyCriteria(condition: PropertyCondition) =
+        condition.tradeType.map { tradeType ->
             val conditions = mutableListOf(
                 Criteria(Property::tradeType.name).`is`(tradeType.name),
                 Criteria(Property::price.name).gte(condition.minPrice / 10_000).lte(condition.maxPrice / 10_000)
@@ -93,43 +191,6 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
             }
             Criteria().andOperator(*conditions.toTypedArray())
         }.let { Criteria().orOperator(*it.toTypedArray()) }
-
-        val geoNearOperation = Aggregation.geoNear(
-            NearQuery.near(point)
-                .maxDistance(condition.travelTime * 0.4, Metrics.KILOMETERS)
-                .spherical(true),
-            "distance"
-        )
-
-        val matchOperation = Aggregation.match(criteria)
-        val groupOperation = Aggregation.group(Property::address.name)
-            .count().`as`(PropertyAggregation::propertyCount.name)
-            .avg(Property::price.name).`as`(PropertyAggregation::averagePrice.name)
-            .avg("distance").`as`(PropertyAggregation::averageDistance.name)
-            .first(Property::address.name).`as`(PropertyAggregation::address.name)
-        val sortOperation = Aggregation.sort(Sort.Direction.DESC, PropertyAggregation::propertyCount.name)
-            .and(Sort.Direction.ASC, condition.sortType.value)
-        val limitOperation = Aggregation.limit(5)
-
-        val aggregation = Aggregation.newAggregation(
-            geoNearOperation,
-            matchOperation,
-            groupOperation,
-            sortOperation,
-            limitOperation
-        )
-
-        return mongoTemplate.aggregate(
-            aggregation,
-            Property::class.java,
-            PropertyAggregation::class.java
-        ).mappedResults
-    }
-
-    fun findAllByAddresses(addresses: List<String>): List<Property> {
-        val query = Query(Criteria.where("address").`in`(addresses))
-        return mongoTemplate.find(query, Property::class.java)
-    }
 
     fun deleteAll() = mongoTemplate.remove(Query(), Property::class.java)
 
