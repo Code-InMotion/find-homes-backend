@@ -1,4 +1,4 @@
-package code_immotion.server.property.dto
+package code_immotion.server.domain.property.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
 

@@ -1,4 +1,4 @@
-package code_immotion.server.property.entity
+package code_immotion.server.domain.property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.data.geo.Point

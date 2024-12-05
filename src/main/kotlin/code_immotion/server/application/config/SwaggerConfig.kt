@@ -1,4 +1,4 @@
-package code_immotion.server.config
+package code_immotion.server.application.config
 
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info

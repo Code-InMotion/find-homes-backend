@@ -1,8 +1,8 @@
-package code_immotion.server.property.dto
+package code_immotion.server.domain.property.dto
 
-import code_immotion.server.property.entity.HouseType
-import code_immotion.server.property.entity.Property
-import code_immotion.server.property.entity.TradeType
+import code_immotion.server.domain.property.entity.HouseType
+import code_immotion.server.domain.property.entity.Property
+import code_immotion.server.domain.property.entity.TradeType
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.geo.Distance
 import java.time.LocalDate

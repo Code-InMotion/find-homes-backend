@@ -1,9 +1,9 @@
-package code_immotion.server.property
+package code_immotion.server.domain.property
 
-import code_immotion.server.open_api.client.OpenApiClient
-import code_immotion.server.property.dto.PropertyAggregation
-import code_immotion.server.property.dto.PropertyCondition
-import code_immotion.server.property.dto.PropertyResponse
+import code_immotion.server.domain.open_api.client.OpenApiClient
+import code_immotion.server.domain.property.dto.PropertyAggregation
+import code_immotion.server.domain.property.dto.PropertyCondition
+import code_immotion.server.domain.property.dto.PropertyResponse
 import org.springframework.data.geo.Point
 import org.springframework.stereotype.Component
 

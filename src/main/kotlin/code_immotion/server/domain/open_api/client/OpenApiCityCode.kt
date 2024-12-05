@@ -1,4 +1,4 @@
-package code_immotion.server.open_api.client
+package code_immotion.server.domain.open_api.client
 
 enum class OpenApiCityCode(val state: String, val city: String, val code: Int) {
     SEOUL_JONGNO("서울특별시", "종로구", 11110),

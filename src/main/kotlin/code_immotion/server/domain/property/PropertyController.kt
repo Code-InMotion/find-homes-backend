@@ -1,6 +1,6 @@
-package code_immotion.server.property
+package code_immotion.server.domain.property
 
-import code_immotion.server.property.dto.PropertyCondition
+import code_immotion.server.domain.property.dto.PropertyCondition
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter

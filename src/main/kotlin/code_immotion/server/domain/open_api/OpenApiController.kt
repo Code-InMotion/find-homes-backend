@@ -1,4 +1,4 @@
-package code_immotion.server.open_api
+package code_immotion.server.domain.open_api
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 @RestController
 @RequestMapping("open-api")
 class OpenApiController(
-    private val openApiFacade: OpenApiFacade
+    private val openApiFacade: code_immotion.server.domain.open_api.OpenApiFacade
 ) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -23,13 +23,13 @@ class OpenApiController(
 
     @ExceptionHandler(ResponseStatusException::class)
     fun handleResponseStatusException(exception: ResponseStatusException): ResponseStatusException {
-        logger.error { exception.message }
+        code_immotion.server.domain.open_api.logger.error { exception.message }
         return exception
     }
 
     @ExceptionHandler(Exception::class)
     fun handleException(exception: Exception): Exception {
-        logger.error { exception.printStackTrace() }
+        code_immotion.server.domain.open_api.logger.error { exception.printStackTrace() }
         return exception
     }
 }

@@ -1,7 +1,7 @@
-package code_immotion.server.open_api.client
+package code_immotion.server.domain.open_api.client
 
-import code_immotion.server.property.entity.HouseType
-import code_immotion.server.property.entity.Property
+import code_immotion.server.domain.property.entity.HouseType
+import code_immotion.server.domain.property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging

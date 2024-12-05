@@ -1,10 +1,10 @@
-package code_immotion.server.open_api
+package code_immotion.server.domain.open_api
 
-import code_immotion.server.open_api.client.ApiLink
-import code_immotion.server.open_api.client.OpenApiCityCode
-import code_immotion.server.open_api.client.OpenApiClient
-import code_immotion.server.open_api.client.TransactionType
-import code_immotion.server.property.PropertyService
+import code_immotion.server.domain.open_api.client.ApiLink
+import code_immotion.server.domain.open_api.client.OpenApiCityCode
+import code_immotion.server.domain.open_api.client.OpenApiClient
+import code_immotion.server.domain.open_api.client.TransactionType
+import code_immotion.server.domain.property.PropertyService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,6 +34,7 @@ class OpenApiFacade(
                         val rentProperties = openApiClient.parseFromXml4Data(rentResponses, cityCode.state, cityCode.city, link)
 
                         saleProperties + rentProperties
+//                         saleProperties + rentProperties
                     } catch (e: Exception) {
                         logger.error { "Error fetching data for ${cityCode.city}: ${e.message}" }
                         emptyList()

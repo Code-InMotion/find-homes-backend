@@ -1,4 +1,4 @@
-package code_immotion.server.config
+package code_immotion.server.application.config
 
 import org.springframework.cache.CacheManager
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager

@@ -1,4 +1,4 @@
-package code_immotion.server.config
+package code_immotion.server.application.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
