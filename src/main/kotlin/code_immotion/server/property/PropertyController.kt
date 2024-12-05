@@ -16,11 +16,11 @@ private val logger = KotlinLogging.logger { }
 class PropertyController(private val propertyFacade: PropertyFacade) {
     @GetMapping
     @Operation(summary = "사용자 조건에 동내 추천")
-    fun findRegionWithCondition(@ParameterObject condition: PropertyCondition) = propertyFacade.findRegionWithCondition(condition)
+    fun findRegionWithCondition(@ParameterObject condition: PropertyCondition.Recommend) = propertyFacade.findRegionWithCondition(condition)
 
     @GetMapping("list")
     @Operation(summary = "추천 지역 내 매물 목록 조회")
-    fun findRegionProperties(@ParameterObject condition: PropertyCondition, @RequestParam address: String) = propertyFacade.findRegionProperties(address, condition)
+    fun findRegionProperties(@ParameterObject condition: PropertyCondition.Address) = propertyFacade.findRegionProperties(condition)
 
     @GetMapping("detail")
     @Operation(summary = "매물 상세 조회")
@@ -31,7 +31,6 @@ class PropertyController(private val propertyFacade: PropertyFacade) {
     fun findTotalSize() = propertyFacade.findTotalSize()
 
     @DeleteMapping
-//    @Hidden
     @Operation(summary = "전체 매물 삭제")
     fun deleteAll() = propertyFacade.deleteAll()
 

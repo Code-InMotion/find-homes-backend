@@ -84,7 +84,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         cacheNames = ["region-stats"],
         key = "#condition.hashCode() + '_' + #point.toString()"
     )
-    fun findRegionWithCondition(condition: PropertyCondition, point: Point): List<PropertyAggregation.Data> {
+    fun findRegionWithCondition(condition: PropertyCondition.Recommend, point: Point): List<PropertyAggregation.Data> {
         val criteria = createPropertyCriteria(condition)
 
         val propertiesProjection = org.bson.Document(
@@ -135,12 +135,12 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         key = "#address + '_' + #condition.hashCode() + '_' + #point.toString()"
     )
     fun findPropertiesByRegion(
-        address: String,
-        condition: PropertyCondition,
+        condition: PropertyCondition.Address,
         point: Point
     ): List<PropertyResponse> {
-        val criteria = createPropertyCriteria(condition)
-            .and(Property::address.name).`is`(address)
+        val recommendCondition = PropertyCondition.Recommend.from(condition)
+        val criteria = createPropertyCriteria(recommendCondition)
+            .and(Property::address.name).`is`(condition.address)
 
         val aggregation = Aggregation.newAggregation(
             Aggregation.geoNear(
@@ -177,7 +177,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
         ).mappedResults
     }
 
-    private fun createPropertyCriteria(condition: PropertyCondition) =
+    private fun createPropertyCriteria(condition: PropertyCondition.Recommend) =
         condition.tradeType.map { tradeType ->
             val conditions = mutableListOf(
                 Criteria(Property::tradeType.name).`is`(tradeType.name),
