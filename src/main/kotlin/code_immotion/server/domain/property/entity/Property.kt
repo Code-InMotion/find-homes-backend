@@ -1,5 +1,7 @@
 package code_immotion.server.domain.property.entity
 
+import code_immotion.server.application.handler.exception.CustomException
+import code_immotion.server.application.handler.exception.ErrorCode
 import com.fasterxml.jackson.databind.JsonNode
 import org.springframework.data.geo.Point
 import org.springframework.data.mongodb.core.index.CompoundIndex
@@ -10,6 +12,7 @@ import java.time.LocalDate
 @CompoundIndex(def = "{'location': '2dsphere'}")
 open class Property(
     var id: String?,
+    val buildingName: String,
     val address: String,
     val addressNumber: String,
     val houseType: HouseType,
@@ -34,11 +37,17 @@ open class Property(
         fun from(jsonNode: JsonNode, state: String, city: String, houseType: HouseType): Property {
             val amount = jsonNode.path("dealAmount")
             val monthlyPrice = jsonNode.path("monthlyRent")
+            val buildingName = when {
+                jsonNode.hasNonNull("offiNm") -> jsonNode.path("offiNm").asText()
+                jsonNode.hasNonNull("aptNm") -> jsonNode.path("aptNm").asText()
+                jsonNode.hasNonNull("mhouseNm") -> jsonNode.path("mhouseNm").asText()
+                else -> throw CustomException(ErrorCode.BAD_REQUEST)
+            }
 
             return when {
-                !amount.isMissingNode -> Sale.from(jsonNode, state, city, houseType)
-                monthlyPrice.asLong() != 0L -> MonthlyRent.from(jsonNode, state, city, houseType)
-                else -> DepositRent.from(jsonNode, state, city, houseType)
+                !amount.isMissingNode -> Sale.from(jsonNode, state, city, houseType, buildingName)
+                monthlyPrice.asLong() != 0L -> MonthlyRent.from(jsonNode, state, city, houseType,buildingName)
+                else -> DepositRent.from(jsonNode, state, city, houseType,buildingName)
             }
         }
     }

@@ -37,6 +37,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
 
             val update = Update()
                 .setOnInsert(Property::address.name, property.address)
+                .setOnInsert(Property::buildingName.name, property.buildingName)
                 .setOnInsert(Property::addressNumber.name, property.addressNumber)
                 .setOnInsert(Property::price.name, property.price)
                 .setOnInsert(Property::floor.name, property.floor)
@@ -91,6 +92,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
             mapOf(
                 "_id" to "\$_id",
                 PropertyResponse::price.name to "\$${PropertyResponse::price.name}",
+                PropertyResponse::buildingName.name to "\$${PropertyResponse::buildingName.name}",
                 PropertyResponse::rentPrice.name to "\$${PropertyResponse::rentPrice.name}",
                 PropertyResponse::tradeType.name to "\$${PropertyResponse::tradeType.name}",
                 PropertyResponse::address.name to "\$${PropertyResponse::address.name}",

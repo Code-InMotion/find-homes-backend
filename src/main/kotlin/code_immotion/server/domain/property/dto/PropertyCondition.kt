@@ -12,25 +12,25 @@ class PropertyCondition {
         @field:Schema(description = "매매 / 보증금 최고금액", example = "10000000000")
         val maxPrice: Long = 10_000_000_000L,
 
-        @field:Schema(example = "0", required = false, description = "월세 최소금액")
+        @field:Schema(example = "0", description = "월세 최소금액")
         val minRentPrice: Long = 0,
 
-        @field:Schema(example = "100000000", required = false, description = "월세 최고금액")
+        @field:Schema(example = "100000000", description = "월세 최고금액")
         val maxRentPrice: Long = 100_000_000L,
 
         @field:Schema(description = "정렬 기준", implementation = SortType::class)
         val sortType: SortType = SortType.PRICE,
 
-        @field:Schema(required = false, description = "이동 소요 시간(분 기준)")
-        val travelTime: Int,
+        @field:Schema(description = "이동 소요 시간(분 기준)")
+        val travelTime: Int = 60,
 
         @field:Schema(example = "성복동 819", required = true, description = "목적지(회사/학교 등)")
         val destination: String,
 
-        @field:Schema(required = false, description = "주거 형태", implementation = HouseType::class)
+        @field:Schema(description = "주거 형태", implementation = HouseType::class)
         val houseType: List<HouseType> = HouseType.entries.toList(),
 
-        @field:Schema(required = false, description = "거래 형태", implementation = TradeType::class)
+        @field:Schema(description = "거래 형태", implementation = TradeType::class)
         val tradeType: List<TradeType> = TradeType.entries.toList()
     ) {
         init {
@@ -69,9 +69,9 @@ class PropertyCondition {
         val sortType: SortType = SortType.PRICE,
 
         @field:Schema(description = "이동 소요 시간(분 기준)")
-        val travelTime: Int,
+        val travelTime: Int = 60,
 
-        @field:Schema(example = "경기도 성남시 분당구 정지일로 95", required = true, description = "목적지(회사/학교 등)")
+        @field:Schema(example = "성복동 819", required = true, description = "목적지(회사/학교 등)")
         val destination: String,
 
         @field:Schema(required = false, description = "주거 형태", implementation = HouseType::class)

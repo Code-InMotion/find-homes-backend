@@ -50,9 +50,16 @@ class OpenApiClient {
         rootNode.path("OpenAPI_ServiceResponse")
             .takeIf { !it.isMissingNode }
             ?.let { errorNode ->
-                logger.error { xml }
                 val authMsg = errorNode.path("cmmMsgHeader").path("returnAuthMsg").asText()
-                throw CustomException(ErrorCode.OPEN_API_SERVER, authMsg)
+                val message = """
+                    data: $xml
+                    massage: $authMsg 
+                    tradeType: $transactionType
+                    cityCode: $cityCode
+                    buildingType: ${apiLink.name}
+                """.trimMargin()
+                logger.error { message }
+                throw CustomException(ErrorCode.OPEN_API_SERVER, message)
             }
 
         val itemsNode = rootNode.path("response").path("body").path("items").path("item")

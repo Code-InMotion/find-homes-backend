@@ -34,9 +34,7 @@ class OpenApiFacade(
                         val rentProperties = openApiClient.parseFromXml4Data(rentResponses, cityCode.state, cityCode.city, link)
 
                         saleProperties + rentProperties
-//                         saleProperties + rentProperties
                     } catch (e: Exception) {
-                        logger.error { "Error fetching data for ${cityCode.city}: ${e.message}" }
                         emptyList()
                     }
                 }
@@ -70,9 +68,9 @@ class OpenApiFacade(
             .filterNotNull()
 
         logger.info { "convert done" }
+        propertyService.upsertAll(properties)
         watch.stop()
         println(watch.prettyPrint())
         logger.info { "dealMonth : $dealMonth" }
-        propertyService.upsertAll(properties)
     }
 }
