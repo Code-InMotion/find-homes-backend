@@ -18,7 +18,7 @@ class PropertyCondition {
         @field:Schema(example = "100000000", required = false, description = "월세 최고금액")
         val maxRentPrice: Long = 100_000_000L,
 
-        @field:Schema(required = false, description = "정렬 기준")
+        @field:Schema(description = "정렬 기준", implementation = SortType::class)
         val sortType: SortType = SortType.PRICE,
 
         @field:Schema(required = false, description = "이동 소요 시간(분 기준)")
@@ -27,10 +27,10 @@ class PropertyCondition {
         @field:Schema(example = "성복동 819", required = true, description = "목적지(회사/학교 등)")
         val destination: String,
 
-        @field:Schema(required = false, description = "주거 형태")
+        @field:Schema(required = false, description = "주거 형태", implementation = HouseType::class)
         val houseType: List<HouseType> = HouseType.entries.toList(),
 
-        @field:Schema(required = false, description = "거래 형태")
+        @field:Schema(required = false, description = "거래 형태", implementation = TradeType::class)
         val tradeType: List<TradeType> = TradeType.entries.toList()
     ) {
         init {
@@ -65,7 +65,7 @@ class PropertyCondition {
         @field:Schema(example = "100000000", description = "월세 최고금액")
         val maxRentPrice: Long = 100_000_000L,
 
-        @field:Schema(description = "정렬 기준")
+        @field:Schema(description = "정렬 기준", implementation = SortType::class)
         val sortType: SortType = SortType.PRICE,
 
         @field:Schema(description = "이동 소요 시간(분 기준)")
@@ -74,10 +74,10 @@ class PropertyCondition {
         @field:Schema(example = "경기도 성남시 분당구 정지일로 95", required = true, description = "목적지(회사/학교 등)")
         val destination: String,
 
-        @field:Schema(description = "주거 형태")
+        @field:Schema(required = false, description = "주거 형태", implementation = HouseType::class)
         val houseType: List<HouseType> = HouseType.entries.toList(),
 
-        @field:Schema(description = "거래 형태")
+        @field:Schema(required = false, description = "거래 형태", implementation = TradeType::class)
         val tradeType: List<TradeType> = TradeType.entries.toList(),
 
         @field:Schema(required = true, description = "추천 지역")

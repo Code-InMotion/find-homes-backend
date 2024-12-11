@@ -1,5 +1,7 @@
 package code_immotion.server.domain.open_api.client
 
+import code_immotion.server.application.handler.exception.CustomException
+import code_immotion.server.application.handler.exception.ErrorCode
 import code_immotion.server.domain.property.entity.HouseType
 import code_immotion.server.domain.property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
@@ -7,10 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.json.XML
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
-import org.springframework.web.server.ResponseStatusException
 import org.springframework.web.util.UriComponentsBuilder
 
 private val logger = KotlinLogging.logger {}
@@ -52,7 +52,7 @@ class OpenApiClient {
             ?.let { errorNode ->
                 logger.error { xml }
                 val authMsg = errorNode.path("cmmMsgHeader").path("returnAuthMsg").asText()
-                throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "AuthMsg: $authMsg")
+                throw CustomException(ErrorCode.OPEN_API_SERVER, authMsg)
             }
 
         val itemsNode = rootNode.path("response").path("body").path("items").path("item")
@@ -81,7 +81,7 @@ class OpenApiClient {
             return ObjectMapper().readTree(xml).path("documents")
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
-            throw Exception("kakao request error")
+            throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
         }
     }
 

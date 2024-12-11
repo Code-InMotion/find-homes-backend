@@ -33,10 +33,4 @@ class PropertyController(private val propertyFacade: PropertyFacade) {
     @DeleteMapping
     @Operation(summary = "전체 매물 삭제")
     fun deleteAll() = propertyFacade.deleteAll()
-
-    @ExceptionHandler(Exception::class)
-    fun handleException(exception: Exception): String? {
-        logger.error { exception.printStackTrace() }
-        return exception.message
-    }
 }
