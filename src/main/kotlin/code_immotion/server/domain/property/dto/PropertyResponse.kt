@@ -10,6 +10,9 @@ import java.time.LocalDate
 data class PropertyResponse(
     var id: String?,
 
+    @field:Schema(description = "건물명", example = "롯데캐슬 클라시엘")
+    val buildingName: String,
+
     @field:Schema(description = "매물 주소", example = "경기도 용인시 수지구 성복동")
     val address: String,
 
@@ -50,6 +53,7 @@ data class PropertyResponse(
         fun from(property: Property, distance: Distance): PropertyResponse {
             return PropertyResponse(
                 id = property.id!!,
+                buildingName = property.buildingName,
                 address = property.address,
                 addressNumber = property.addressNumber,
                 houseType = property.houseType,
