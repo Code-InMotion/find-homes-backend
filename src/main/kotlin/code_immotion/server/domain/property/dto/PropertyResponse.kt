@@ -5,6 +5,7 @@ import code_immotion.server.domain.property.entity.Property
 import code_immotion.server.domain.property.entity.TradeType
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.geo.Distance
+import org.springframework.data.geo.Point
 import java.time.LocalDate
 
 data class PropertyResponse(
@@ -44,7 +45,10 @@ data class PropertyResponse(
     val exclusiveArea: Int,
 
     @field:Schema(description = "목적지까지 거리", example = "12.3456789")
-    val distance: Double
+    val distance: Double,
+
+    @field:Schema(description = "좌표")
+    val location: Point
 ) {
     @field:Schema(description = "대중교통을 사용한 이동 소요 시간(60으로 고정 추가 개발 예정)", example = "60")
     val travelTime: Int = 60
@@ -64,6 +68,7 @@ data class PropertyResponse(
                 dealDate = property.dealDate,
                 buildYear = property.buildYear,
                 exclusiveArea = property.buildYear,
+                location = property.location!!,
                 distance = distance.value,
             )
         }
