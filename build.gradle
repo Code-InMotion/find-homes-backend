@@ -15,8 +15,14 @@ java {
     }
 }
 
+ext {
+    set('springAiVersion', "1.0.0-M1")
+}
+
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
@@ -29,9 +35,11 @@ dependencies {
     implementation 'io.github.oshai:kotlin-logging-jvm:7.0.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-reactor"
+    implementation "org.springframework.boot:spring-boot-starter-cache"
+    implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
+    implementation 'org.springframework.ai:spring-ai-ollama'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
