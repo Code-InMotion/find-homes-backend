@@ -34,9 +34,7 @@ class PropertyFacade(
 
     private fun extractPoint(destination: String): Point {
         val rootNode = openApiClient.sendRequestForGeoLocation(destination)
-        if (rootNode.isEmpty) {
-            throw Exception("잘못된 주소입니다")
-        }
+        if (rootNode.isEmpty) throw Exception("잘못된 주소입니다")
         val latitude: Double = rootNode.first().path("y").asText().toDouble()
         val longitude: Double = rootNode.first().path("x").asText().toDouble()
         return Point(longitude, latitude)
