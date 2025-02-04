@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: secret, mongodb
+    active: secret, mongodb, db
   output:
     ansi:
       enabled: always
