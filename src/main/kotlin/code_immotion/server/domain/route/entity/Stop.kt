@@ -4,10 +4,10 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 
 @Entity
-class Agency(
+class Stop(
     @Id
     val id: String,
     val name: String,
-    val url: String,
-    val timezone: String
+    val lat: Double,
+    val lon: Double
 )
