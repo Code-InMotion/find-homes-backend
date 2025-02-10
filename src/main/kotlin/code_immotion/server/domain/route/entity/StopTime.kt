@@ -8,6 +8,7 @@ import java.time.LocalTime
 
 
 @Entity
+@IdClass(StopTimeId::class)
 class StopTime(
     @Id
     @ManyToOne
