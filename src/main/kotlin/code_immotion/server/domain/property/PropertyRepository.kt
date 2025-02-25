@@ -102,6 +102,7 @@ class PropertyRepository(private val mongoTemplate: MongoTemplate) {
                 PropertyResponse::dealDate.name to "\$${PropertyResponse::dealDate.name}",
                 PropertyResponse::exclusiveArea.name to "\$${PropertyResponse::exclusiveArea.name}",
                 PropertyResponse::buildYear.name to "\$${PropertyResponse::buildYear.name}",
+                PropertyResponse::location.name to "\$${PropertyResponse::location.name}",
                 PropertyResponse::distance.name to "\$distance"
             )
         )
