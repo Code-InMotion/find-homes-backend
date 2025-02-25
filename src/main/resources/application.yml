@@ -1,10 +1,12 @@
 spring:
   profiles:
-    active: secret
-  data.mongodb.url: mongodb://localhost:27017/homes
+    active: secret, mongodb
   output:
     ansi:
       enabled: always
+  mvc:
+    async:
+      request-timeout: -1
 jackson:
   serialization:
     indent-output: true
