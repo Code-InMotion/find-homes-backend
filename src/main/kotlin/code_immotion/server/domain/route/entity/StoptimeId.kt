@@ -3,7 +3,7 @@ package code_immotion.server.domain.route.entity
 import java.io.Serializable
 
 data class StopTimeId(
-    val trip: Trip,
-    val stop: Stop,
-    val stopSequence: Int,
+    var trip: String? = null,
+    var stop: String? = null,
+    var stopSequence: Int? = null,
 ) : Serializable

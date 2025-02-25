@@ -7,6 +7,10 @@ spring:
   mvc:
     async:
       request-timeout: -1
+  servlet:
+    multipart:
+      max-file-size: 5GB        # 단일 파일의 최대 크기
+      max-request-size: 10GB     # 전체 요청의 최대 크기
 jackson:
   serialization:
     indent-output: true
