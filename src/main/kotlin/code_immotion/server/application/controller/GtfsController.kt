@@ -24,10 +24,4 @@ class GtfsController(private val gtfsImportOrchestrator: GtfsImportOrchestrator)
         val fileMap = files.associateBy { it.originalFilename ?: "" }
         gtfsImportOrchestrator.importGtfsData(fileMap)
     }
-
-    @ExceptionHandler(Exception::class)
-    fun handleException(exception: Exception): Exception {
-        logger.error { exception.printStackTrace() }
-        return exception
-    }
 }

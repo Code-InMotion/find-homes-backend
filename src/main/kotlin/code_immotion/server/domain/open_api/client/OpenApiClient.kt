@@ -85,7 +85,11 @@ class OpenApiClient {
                 .retrieve()
                 .body(String::class.java)
 
-            return ObjectMapper().readTree(xml).path("documents")
+            val documents =ObjectMapper().readTree(xml).path("documents")
+            if (documents.isEmpty) {
+                throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
+            }
+            return documents
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
             throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
