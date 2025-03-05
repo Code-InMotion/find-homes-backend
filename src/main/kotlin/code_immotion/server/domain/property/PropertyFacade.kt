@@ -1,5 +1,7 @@
 package code_immotion.server.domain.property
 
+import code_immotion.server.application.handler.exception.CustomException
+import code_immotion.server.application.handler.exception.ErrorCode
 import code_immotion.server.domain.open_api.client.OpenApiClient
 import code_immotion.server.domain.property.dto.PropertyAggregation
 import code_immotion.server.domain.property.dto.PropertyCondition
@@ -18,9 +20,9 @@ class PropertyFacade(
             .map { PropertyAggregation.Info.from(it) }
     }
 
-    fun findRegionProperties( condition: PropertyCondition.Address): List<PropertyResponse> {
+    fun findRegionProperties(condition: PropertyCondition.Address): List<PropertyResponse> {
         val point = extractPoint(condition.destination)
-        return propertyService.findRegionProperties( condition, point)
+        return propertyService.findRegionProperties(condition, point)
     }
 
     fun findProperty(propertyId: String, destination: String): PropertyResponse {
@@ -34,9 +36,10 @@ class PropertyFacade(
 
     private fun extractPoint(destination: String): Point {
         val rootNode = openApiClient.sendRequestForGeoLocation(destination)
-        if (rootNode.isEmpty) throw Exception("잘못된 주소입니다")
+
         val latitude: Double = rootNode.first().path("y").asText().toDouble()
         val longitude: Double = rootNode.first().path("x").asText().toDouble()
+
         return Point(longitude, latitude)
     }
 }

@@ -1,5 +1,7 @@
 package code_immotion.server.domain.route
 
+import code_immotion.server.application.handler.exception.CustomException
+import code_immotion.server.application.handler.exception.ErrorCode
 import code_immotion.server.domain.open_api.client.OpenApiClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
@@ -58,6 +60,6 @@ class RouteService(private val openApiClient: OpenApiClient) {
                     .takeUnless { it.isMissingNode }?.asInt()
             }
 
-        return times.minOrNull() ?: throw RuntimeException("No routes found")
+        return times.minOrNull() ?: throw CustomException(ErrorCode.NOT_FOUND_ROUTE)
     }
 }

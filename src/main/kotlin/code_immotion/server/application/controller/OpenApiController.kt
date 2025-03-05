@@ -21,16 +21,4 @@ class OpenApiController(
     @Operation(summary = "Open Api 호출")
     suspend fun syncPropertiesWithOpenApi(@RequestParam("dealMonth") dealMonth: Int) =
         openApiFacade.syncPropertiesWithOpenApi(dealMonth)
-
-    @ExceptionHandler(ResponseStatusException::class)
-    fun handleResponseStatusException(exception: ResponseStatusException): ResponseStatusException {
-        logger.error { exception.message }
-        return exception
-    }
-
-    @ExceptionHandler(Exception::class)
-    fun handleException(exception: Exception): Exception {
-        logger.error { exception.printStackTrace() }
-        return exception
-    }
 }
