@@ -14,5 +14,7 @@ enum class ErrorCode(
 
     OPEN_API_KAKAO_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "kakao geolocation에 실패했습니다."),
     OPEN_API_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "공공데이터 포털에서 데이터를 얻어오는데 실패했습니다."),
+    RUNTIME(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버에러입니다."),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 서버에러입니다."),
     ;
 }
