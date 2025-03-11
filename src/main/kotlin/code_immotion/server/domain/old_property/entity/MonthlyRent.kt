@@ -1,4 +1,4 @@
-package code_immotion.server.domain.property.entity
+package code_immotion.server.domain.old_property.entity
 
 import com.fasterxml.jackson.databind.JsonNode
 import java.time.LocalDate

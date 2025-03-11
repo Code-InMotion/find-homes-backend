@@ -1,11 +1,11 @@
-package code_immotion.server.domain.property
+package code_immotion.server.domain.old_property
 
-import code_immotion.server.domain.property.dto.PropertyAggregation
-import code_immotion.server.domain.property.dto.PropertyCondition
-import code_immotion.server.domain.property.dto.PropertyResponse
-import code_immotion.server.domain.property.entity.MonthlyRent
-import code_immotion.server.domain.property.entity.Property
-import code_immotion.server.domain.property.entity.TradeType
+import code_immotion.server.domain.old_property.dto.PropertyAggregation
+import code_immotion.server.domain.old_property.dto.PropertyCondition
+import code_immotion.server.domain.old_property.dto.PropertyResponse
+import code_immotion.server.domain.old_property.entity.MonthlyRent
+import code_immotion.server.domain.old_property.entity.Property
+import code_immotion.server.domain.old_property.entity.TradeType
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Sort
 import org.springframework.data.geo.Metrics

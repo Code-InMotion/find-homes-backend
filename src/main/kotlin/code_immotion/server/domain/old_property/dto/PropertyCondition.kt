@@ -1,7 +1,7 @@
-package code_immotion.server.domain.property.dto
+package code_immotion.server.domain.old_property.dto
 
-import code_immotion.server.domain.property.entity.HouseType
-import code_immotion.server.domain.property.entity.TradeType
+import code_immotion.server.domain.old_property.entity.HouseType
+import code_immotion.server.domain.old_property.entity.TradeType
 import io.swagger.v3.oas.annotations.media.Schema
 
 class PropertyCondition {

@@ -1,4 +1,4 @@
-package code_immotion.server.domain.property.entity
+package code_immotion.server.domain.old_property.entity
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
