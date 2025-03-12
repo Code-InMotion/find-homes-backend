@@ -2,8 +2,8 @@ package code_immotion.server.domain.open_api.client
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.domain.old_property.entity.HouseType
-import code_immotion.server.domain.old_property.entity.Property
+import code_immotion.server.domain.property.entity.HouseType
+import code_immotion.server.domain.property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -92,22 +92,6 @@ class OpenApiClient {
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
             throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
-        }
-    }
-
-    fun parseFromXml(
-        items: Iterable<JsonNode>,
-        state: String,
-        city: String,
-        link: ApiLink
-    ): List<Property> {
-        return items.map { item ->
-            val houseType = when (link) {
-                ApiLink.OFFICETEL -> HouseType.OFFICETEL
-                ApiLink.APARTMENT -> HouseType.APARTMENT
-                else -> HouseType.VILLA
-            }
-            Property.from(item, state, city, houseType)
         }
     }
 }

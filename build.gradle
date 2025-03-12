@@ -47,9 +47,6 @@ dependencies {
     //csv parsing
     implementation "com.opencsv:opencsv:5.7.1"
 
-    //nosql
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-
     //cache
     implementation "org.springframework.boot:spring-boot-starter-cache"
 
