@@ -2,8 +2,8 @@ package code_immotion.server.domain.open_api.client
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.domain.property.entity.HouseType
-import code_immotion.server.domain.property.entity.Property
+import code_immotion.server.domain.old_property.entity.HouseType
+import code_immotion.server.domain.old_property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -58,7 +58,7 @@ class OpenApiClient {
                     cityCode: $cityCode
                     buildingType: ${apiLink.name}
                 """.trimMargin()
-                logger.error { message }
+
                 throw CustomException(ErrorCode.OPEN_API_SERVER, message)
             }
 
@@ -72,12 +72,13 @@ class OpenApiClient {
     }
 
     fun sendRequestForGeoLocation(address: String): JsonNode {
-        val uri = UriComponentsBuilder
-            .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
-            .queryParam("query", address)
-            .build()
-            .toUri()
         try {
+            val uri = UriComponentsBuilder
+                .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
+                .queryParam("query", address)
+                .build()
+                .toUri()
+
             val xml = RestClient.create()
                 .get()
                 .uri(uri)
@@ -85,18 +86,16 @@ class OpenApiClient {
                 .retrieve()
                 .body(String::class.java)
 
-            val documents =ObjectMapper().readTree(xml).path("documents")
-            if (documents.isEmpty) {
-                throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
-            }
-            return documents
+            return ObjectMapper().readTree(xml).path("documents")
+                .takeIf { !it.isEmpty && !it.isMissingNode }
+                ?: throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
             throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
         }
     }
 
-    fun parseFromXml4Data(
+    fun parseFromXml(
         items: Iterable<JsonNode>,
         state: String,
         city: String,

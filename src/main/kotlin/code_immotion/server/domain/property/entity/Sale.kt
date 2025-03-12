@@ -1,4 +1,4 @@
-package code_immotion.server.domain.real_estate.entity
+package code_immotion.server.domain.property.entity
 
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -14,5 +14,5 @@ class Sale(
     val dealDate: LocalDate,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    val realEstate: RealEstate
+    val property: Property
 )

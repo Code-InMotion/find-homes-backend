@@ -1,4 +1,4 @@
-package code_immotion.server.domain.real_estate.entity
+package code_immotion.server.domain.property.entity
 
 enum class HouseType {
     APARTMENT,
