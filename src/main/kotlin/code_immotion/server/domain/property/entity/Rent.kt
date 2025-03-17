@@ -4,13 +4,15 @@ import jakarta.persistence.*
 import java.time.LocalDate
 
 @Entity
-class Sale(
+class Rent(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
     val floor: Int,
     val houseType: HouseType,
     val price: Long,
+    val rentPrice: Long,
+    val isMonthly: Boolean,
     val dealDate: LocalDate,
 
     @ManyToOne(fetch = FetchType.LAZY)

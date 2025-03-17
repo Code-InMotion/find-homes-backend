@@ -58,7 +58,7 @@ class OpenApiClient {
                     cityCode: $cityCode
                     buildingType: ${apiLink.name}
                 """.trimMargin()
-                logger.error { message }
+
                 throw CustomException(ErrorCode.OPEN_API_SERVER, message)
             }
 
@@ -72,12 +72,13 @@ class OpenApiClient {
     }
 
     fun sendRequestForGeoLocation(address: String): JsonNode {
-        val uri = UriComponentsBuilder
-            .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
-            .queryParam("query", address)
-            .build()
-            .toUri()
         try {
+            val uri = UriComponentsBuilder
+                .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
+                .queryParam("query", address)
+                .build()
+                .toUri()
+
             val xml = RestClient.create()
                 .get()
                 .uri(uri)
@@ -85,30 +86,12 @@ class OpenApiClient {
                 .retrieve()
                 .body(String::class.java)
 
-            val documents =ObjectMapper().readTree(xml).path("documents")
-            if (documents.isEmpty) {
-                throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
-            }
-            return documents
+            return ObjectMapper().readTree(xml).path("documents")
+                .takeIf { !it.isEmpty && !it.isMissingNode }
+                ?: throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
             throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
-        }
-    }
-
-    fun parseFromXml4Data(
-        items: Iterable<JsonNode>,
-        state: String,
-        city: String,
-        link: ApiLink
-    ): List<Property> {
-        return items.map { item ->
-            val houseType = when (link) {
-                ApiLink.OFFICETEL -> HouseType.OFFICETEL
-                ApiLink.APARTMENT -> HouseType.APARTMENT
-                else -> HouseType.VILLA
-            }
-            Property.from(item, state, city, houseType)
         }
     }
 }

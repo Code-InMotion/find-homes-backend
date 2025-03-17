@@ -40,14 +40,12 @@ dependencies {
     implementation 'org.postgresql:postgresql'
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 
-    //gis
+    //postgres & postGIS
     implementation 'net.postgis:postgis-jdbc:2024.1.0'
+    implementation 'org.postgresql:postgresql:42.7.3'
 
     //csv parsing
     implementation "com.opencsv:opencsv:5.7.1"
-
-    //nosql
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     //cache
     implementation "org.springframework.boot:spring-boot-starter-cache"
