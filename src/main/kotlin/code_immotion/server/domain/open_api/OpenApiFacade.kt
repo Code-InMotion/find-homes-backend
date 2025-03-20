@@ -6,7 +6,7 @@ import code_immotion.server.domain.open_api.client.ApiLink
 import code_immotion.server.domain.open_api.client.OpenApiCityCode
 import code_immotion.server.domain.open_api.client.OpenApiClient
 import code_immotion.server.domain.open_api.client.TransactionType
-import code_immotion.server.domain.property.PropertyService
+//import code_immotion.server.domain.property.PropertyService
 import code_immotion.server.domain.property.entity.GeoLocation
 import code_immotion.server.domain.property.entity.Property
 import code_immotion.server.domain.property.entity.Rent
@@ -21,7 +21,7 @@ private val logger = KotlinLogging.logger { }
 @Component
 class OpenApiFacade(
     private val openApiClient: OpenApiClient,
-    private val propertyService: PropertyService
+//    private val propertyService: PropertyService
 ) {
     suspend fun syncPropertiesWithOpenApi(dealMonth: Int) = coroutineScope {
         val watch = StopWatch()
@@ -53,7 +53,7 @@ class OpenApiFacade(
         logger.info { "위치 정보 가져오기 완료: ${propertiesWithGeo.size}개 항목" }
 
         logger.info { "convert done" }
-        propertyService.upsertAll(propertiesWithGeo)
+//        propertyService.upsertAll(propertiesWithGeo)
         watch.stop()
         println(watch.prettyPrint())
         logger.info { "dealMonth : $dealMonth" }
