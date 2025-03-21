@@ -1,6 +1,6 @@
 package code_immotion.server.application.controller
 
-import code_immotion.server.domain.open_api.OpenApiFacade
+import code_immotion.server.application.open_api.OpenApiFacade
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

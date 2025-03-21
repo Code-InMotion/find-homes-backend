@@ -1,11 +1,11 @@
-package code_immotion.server.domain.open_api
+package code_immotion.server.application.open_api
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.domain.open_api.client.ApiLink
-import code_immotion.server.domain.open_api.client.OpenApiCityCode
-import code_immotion.server.domain.open_api.client.OpenApiClient
-import code_immotion.server.domain.open_api.client.TransactionType
+import code_immotion.server.application.open_api.client.ApiLink
+import code_immotion.server.application.open_api.client.OpenApiCityCode
+import code_immotion.server.application.open_api.client.OpenApiClient
+import code_immotion.server.application.open_api.client.TransactionType
 //import code_immotion.server.domain.property.PropertyService
 import code_immotion.server.domain.property.entity.GeoLocation
 import code_immotion.server.domain.property.entity.Property

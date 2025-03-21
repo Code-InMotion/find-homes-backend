@@ -2,7 +2,7 @@ package code_immotion.server.domain.property.entity
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.domain.open_api.client.ApiLink
+import code_immotion.server.application.open_api.client.ApiLink
 import com.fasterxml.jackson.databind.JsonNode
 import jakarta.persistence.*
 import java.time.LocalDate
