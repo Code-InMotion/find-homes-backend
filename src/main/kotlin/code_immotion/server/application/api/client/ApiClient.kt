@@ -1,5 +1,6 @@
 package code_immotion.server.application.api.client
 
+import code_immotion.server.application.api.client.property.TransactionType
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
 import com.fasterxml.jackson.databind.JsonNode
@@ -18,11 +19,14 @@ class ApiClient {
     @Value("\${data-go-kr.secretKey}")
     lateinit var dataSecretKey: String
 
+    @Value("\${data-seoul-go-kr.secretKey}")
+    lateinit var dataSeoulSecretKey: String
+
     @Value("\${kakao.secretKey}")
     lateinit var kakaoSecretKey: String
 
 
-    fun sendRequestToData(
+    fun callPropertiesApi(
         apiLink: ApiLink,
         transactionType: TransactionType,
         cityCode: Int,
@@ -70,7 +74,7 @@ class ApiClient {
         }
     }
 
-    fun sendRequestForGeoLocation(address: String): JsonNode {
+    fun callGeoLocationApi(address: String): JsonNode {
         try {
             val uri = UriComponentsBuilder
                 .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")

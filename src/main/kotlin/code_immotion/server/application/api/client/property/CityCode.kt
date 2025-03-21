@@ -1,4 +1,4 @@
-package code_immotion.server.application.api.client
+package code_immotion.server.application.api.client.property
 
 enum class CityCode(val state: String, val city: String, val code: Int) {
     SEOUL_JONGNO("서울특별시", "종로구", 11110),

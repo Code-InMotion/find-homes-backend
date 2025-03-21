@@ -3,9 +3,9 @@ package code_immotion.server.application.api
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
 import code_immotion.server.application.api.client.ApiLink
-import code_immotion.server.application.api.client.CityCode
+import code_immotion.server.application.api.client.property.CityCode
 import code_immotion.server.application.api.client.ApiClient
-import code_immotion.server.application.api.client.TransactionType
+import code_immotion.server.application.api.client.property.TransactionType
 //import code_immotion.server.domain.property.PropertyService
 import code_immotion.server.domain.property.entity.GeoLocation
 import code_immotion.server.domain.property.entity.Property
@@ -30,8 +30,8 @@ class ApiService(
             CityCode.entries.map { cityCode ->
                 async(Dispatchers.IO) {
                     try {
-                        val saleResponses = apiClient.sendRequestToData(link, TransactionType.SALE, cityCode.code, dealMonth)
-                        val rentResponses = apiClient.sendRequestToData(link, TransactionType.RENT, cityCode.code, dealMonth)
+                        val saleResponses = apiClient.callPropertiesApi(link, TransactionType.SALE, cityCode.code, dealMonth)
+                        val rentResponses = apiClient.callPropertiesApi(link, TransactionType.RENT, cityCode.code, dealMonth)
 
                         val saleProperties = Property.fromSale(saleResponses, cityCode.state, cityCode.city, link)
                         val rentProperties = Property.fromRent(rentResponses, cityCode.state, cityCode.city, link)
@@ -94,7 +94,7 @@ class ApiService(
 
     private suspend fun CoroutineScope.syncGeoLocation(properties: List<Property>) = properties.map { property ->
         async {
-            val rootNode = apiClient.sendRequestForGeoLocation(property.address)
+            val rootNode = apiClient.callGeoLocationApi(property.address)
             val latitude = rootNode.first().path("y").asText().toDouble()
             val longitude = rootNode.first().path("x").asText().toDouble()
 
