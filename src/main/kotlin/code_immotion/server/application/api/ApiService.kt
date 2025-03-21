@@ -1,12 +1,11 @@
 package code_immotion.server.application.api
 
-import code_immotion.server.application.handler.exception.CustomException
-import code_immotion.server.application.handler.exception.ErrorCode
+//import code_immotion.server.domain.property.PropertyService
+import code_immotion.server.application.api.client.ApiClient
 import code_immotion.server.application.api.client.ApiLink
 import code_immotion.server.application.api.client.property.CityCode
-import code_immotion.server.application.api.client.ApiClient
-import code_immotion.server.application.api.client.property.TransactionType
-//import code_immotion.server.domain.property.PropertyService
+import code_immotion.server.application.handler.exception.CustomException
+import code_immotion.server.application.handler.exception.ErrorCode
 import code_immotion.server.domain.property.entity.GeoLocation
 import code_immotion.server.domain.property.entity.Property
 import code_immotion.server.domain.property.entity.Rent
@@ -26,17 +25,12 @@ class ApiService(
     suspend fun syncPropertiesWithOpenApi(dealMonth: Int) = coroutineScope {
         val watch = StopWatch()
         watch.start()
-        val newProperties = ApiLink.entries.flatMap { link ->
+        val newProperties = ApiLink.Property.entries.flatMap { link ->
             CityCode.entries.map { cityCode ->
                 async(Dispatchers.IO) {
                     try {
-                        val saleResponses = apiClient.callPropertiesApi(link, TransactionType.SALE, cityCode.code, dealMonth)
-                        val rentResponses = apiClient.callPropertiesApi(link, TransactionType.RENT, cityCode.code, dealMonth)
-
-                        val saleProperties = Property.fromSale(saleResponses, cityCode.state, cityCode.city, link)
-                        val rentProperties = Property.fromRent(rentResponses, cityCode.state, cityCode.city, link)
-
-                        saleProperties + rentProperties
+                        val response = apiClient.callPropertiesApi(link, cityCode.code, dealMonth)
+                        Property.fromSale(response, cityCode.state, cityCode.city, link.houseType)
                     } catch (e: Exception) {
                         emptyList()
                     }

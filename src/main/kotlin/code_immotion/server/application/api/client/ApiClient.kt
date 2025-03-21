@@ -1,6 +1,5 @@
 package code_immotion.server.application.api.client
 
-import code_immotion.server.application.api.client.property.TransactionType
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
 import com.fasterxml.jackson.databind.JsonNode
@@ -27,13 +26,12 @@ class ApiClient {
 
 
     fun callPropertiesApi(
-        apiLink: ApiLink,
-        transactionType: TransactionType,
+        apiLink: ApiLink.Property,
         cityCode: Int,
         dealMonth: Int,
     ): Iterable<JsonNode> {
         val uri = UriComponentsBuilder
-            .fromHttpUrl(apiLink.getUrl(transactionType))
+            .fromHttpUrl(apiLink.link)
             .queryParam("serviceKey", dataSecretKey)
             .queryParam("LAWD_CD", cityCode)
             .queryParam("DEAL_YMD", dealMonth)
@@ -57,7 +55,7 @@ class ApiClient {
                 val message = """
                     data: $xml
                     massage: $authMsg 
-                    tradeType: $transactionType
+                    tradeType: ${if (apiLink.isSale) "Sale" else "Rent"}
                     cityCode: $cityCode
                     buildingType: ${apiLink.name}
                 """.trimMargin()
@@ -77,7 +75,7 @@ class ApiClient {
     fun callGeoLocationApi(address: String): JsonNode {
         try {
             val uri = UriComponentsBuilder
-                .fromHttpUrl("https://dapi.kakao.com/v2/local/search/address")
+                .fromHttpUrl(ApiLink.Kakao.GEO_LOCATION.link)
                 .queryParam("query", address)
                 .build()
                 .toUri()
