@@ -1,4 +1,4 @@
-package code_immotion.server.domain.route.entity
+package code_immotion.server.application.gtfs.entity
 
 import java.io.Serializable
 
