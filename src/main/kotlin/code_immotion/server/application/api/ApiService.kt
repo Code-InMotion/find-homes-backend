@@ -1,11 +1,11 @@
-package code_immotion.server.application.open_api
+package code_immotion.server.application.api
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.application.open_api.client.ApiLink
-import code_immotion.server.application.open_api.client.OpenApiCityCode
-import code_immotion.server.application.open_api.client.OpenApiClient
-import code_immotion.server.application.open_api.client.TransactionType
+import code_immotion.server.application.api.client.ApiLink
+import code_immotion.server.application.api.client.CityCode
+import code_immotion.server.application.api.client.ApiClient
+import code_immotion.server.application.api.client.TransactionType
 //import code_immotion.server.domain.property.PropertyService
 import code_immotion.server.domain.property.entity.GeoLocation
 import code_immotion.server.domain.property.entity.Property
@@ -19,19 +19,19 @@ import org.springframework.util.StopWatch
 private val logger = KotlinLogging.logger { }
 
 @Component
-class OpenApiFacade(
-    private val openApiClient: OpenApiClient,
+class ApiService(
+    private val apiClient: ApiClient,
 //    private val propertyService: PropertyService
 ) {
     suspend fun syncPropertiesWithOpenApi(dealMonth: Int) = coroutineScope {
         val watch = StopWatch()
         watch.start()
         val newProperties = ApiLink.entries.flatMap { link ->
-            OpenApiCityCode.entries.map { cityCode ->
+            CityCode.entries.map { cityCode ->
                 async(Dispatchers.IO) {
                     try {
-                        val saleResponses = openApiClient.sendRequestToData(link, TransactionType.SALE, cityCode.code, dealMonth)
-                        val rentResponses = openApiClient.sendRequestToData(link, TransactionType.RENT, cityCode.code, dealMonth)
+                        val saleResponses = apiClient.sendRequestToData(link, TransactionType.SALE, cityCode.code, dealMonth)
+                        val rentResponses = apiClient.sendRequestToData(link, TransactionType.RENT, cityCode.code, dealMonth)
 
                         val saleProperties = Property.fromSale(saleResponses, cityCode.state, cityCode.city, link)
                         val rentProperties = Property.fromRent(rentResponses, cityCode.state, cityCode.city, link)
@@ -94,7 +94,7 @@ class OpenApiFacade(
 
     private suspend fun CoroutineScope.syncGeoLocation(properties: List<Property>) = properties.map { property ->
         async {
-            val rootNode = openApiClient.sendRequestForGeoLocation(property.address)
+            val rootNode = apiClient.sendRequestForGeoLocation(property.address)
             val latitude = rootNode.first().path("y").asText().toDouble()
             val longitude = rootNode.first().path("x").asText().toDouble()
 

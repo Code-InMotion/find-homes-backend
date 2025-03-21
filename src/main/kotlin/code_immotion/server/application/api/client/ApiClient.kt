@@ -1,9 +1,7 @@
-package code_immotion.server.application.open_api.client
+package code_immotion.server.application.api.client
 
 import code_immotion.server.application.handler.exception.CustomException
 import code_immotion.server.application.handler.exception.ErrorCode
-import code_immotion.server.domain.property.entity.HouseType
-import code_immotion.server.domain.property.entity.Property
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -16,12 +14,13 @@ import org.springframework.web.util.UriComponentsBuilder
 private val logger = KotlinLogging.logger {}
 
 @Component
-class OpenApiClient {
-    @Value("\${openApi.secretKey}")
+class ApiClient {
+    @Value("\${data-go-kr.secretKey}")
     lateinit var dataSecretKey: String
 
     @Value("\${kakao.secretKey}")
     lateinit var kakaoSecretKey: String
+
 
     fun sendRequestToData(
         apiLink: ApiLink,
