@@ -39,13 +39,13 @@ class ApiClient {
             .build(true)
             .toUri()
 
-        val xml = RestClient.create()
+        val response = RestClient.create()
             .get()
             .uri(uri)
             .retrieve()
             .body(String::class.java)
 
-        val json = XML.toJSONObject(xml)
+        val json = XML.toJSONObject(response)
         val rootNode = ObjectMapper().readTree(json.toString())
 
         rootNode.path("OpenAPI_ServiceResponse")
@@ -53,7 +53,7 @@ class ApiClient {
             ?.let { errorNode ->
                 val authMsg = errorNode.path("cmmMsgHeader").path("returnAuthMsg").asText()
                 val message = """
-                    data: $xml
+                    data: $response
                     massage: $authMsg 
                     tradeType: ${if (apiLink.isSale) "Sale" else "Rent"}
                     cityCode: $cityCode
@@ -80,19 +80,42 @@ class ApiClient {
                 .build()
                 .toUri()
 
-            val xml = RestClient.create()
+            val response = RestClient.create()
                 .get()
                 .uri(uri)
                 .header("Authorization", "KakaoAK $kakaoSecretKey")
                 .retrieve()
                 .body(String::class.java)
 
-            return ObjectMapper().readTree(xml).path("documents")
+            return ObjectMapper().readTree(response).path("documents")
                 .takeIf { !it.isEmpty && !it.isMissingNode }
                 ?: throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER)
         } catch (e: Exception) {
             logger.error { e.printStackTrace() }
             throw CustomException(ErrorCode.OPEN_API_KAKAO_SERVER, e.message)
+        }
+    }
+
+    fun callSubwayScheduleApi(page: Int): Unit {
+        try {
+            val uri = UriComponentsBuilder
+                .fromHttpUrl(ApiLink.Subway.SUBWAY_SCHEDULE.link)
+                .queryParam("perPage", "9999")
+                .queryParam("page", page)
+                .queryParam("serviceKey", dataSecretKey)
+                .build()
+                .toUri()
+
+            val response = RestClient.create()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body(String::class.java)
+
+            println(response)
+        } catch (e: Exception) {
+            logger.error { e.printStackTrace() }
+            throw CustomException(ErrorCode.OPEN_API_SERVER, e.message)
         }
     }
 }

@@ -58,7 +58,13 @@ dependencies {
 
     //공공데이터
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
     implementation 'org.json:json:20231013'
+
+    // excel
+    implementation("org.apache.poi:poi:5.2.3")
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
